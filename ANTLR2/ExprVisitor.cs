@@ -10,9 +10,9 @@ namespace ANTLR2 {
             new Binding("print", ValueFactory.make(x=>{Console.WriteLine(x);return ValueFactory.make();})),
             new Binding("typeof", ValueFactory.make(x=>{
                     var t = x.Type;
-                    return ValueFactory.make(new Type(t));})),
+                    return ValueFactory.make(t);
+            })),
             new Binding("int", ValueFactory.make(new Type(ValueType.INTEGER))),
-            new Binding("func", ValueFactory.make(new Type(ValueType.FUNCTION))),
             new Binding("true", ValueFactory.make(1)),
             new Binding("false", ValueFactory.make(0)),
         };
@@ -26,6 +26,10 @@ namespace ANTLR2 {
         }
 
         public ExprVisitor() {}
+
+        public override Value VisitStatement_expr(gramParser.Statement_exprContext context) {
+            return Visit(context.expr());
+        }
 
         public override Value VisitInt(gramParser.IntContext context) {
             return ValueFactory.make(int.Parse(context.INT().GetText()));
@@ -52,6 +56,29 @@ namespace ANTLR2 {
             return left / right;
         }
 
+        public override Value VisitLogicaloperator(gramParser.LogicaloperatorContext context) {
+            var left = Visit(context.expr(0));
+            if (context.op.Type == gramParser.OR) {
+                if (left.AsInt != 0) {
+                    return environment["true"].Value;
+                } else if (Visit(context.expr(1)).AsInt != 0) {
+                        return environment["true"].Value;
+                } else {
+                    return environment["false"].Value;
+                }
+            } else if (context.op.Type == gramParser.AND) {
+                if (left.AsInt == 0) {
+                    return environment["false"].Value;
+                } else if (Visit(context.expr(1)).AsInt != 0) {
+                    return environment["true"].Value;
+                } else {
+                    return environment["false"].Value;
+                }
+            }
+
+            return environment["false"].Value;
+        }
+
         public override Value VisitParens(gramParser.ParensContext context) {
             return Visit(context.expr());
         }
@@ -60,19 +87,37 @@ namespace ANTLR2 {
             return environment[context.IDENTIFIER().GetText()].Value;
         }
 
+        public override Value VisitRawtype(gramParser.RawtypeContext context) {
+            return environment[context.IDENTIFIER().GetText()].Value;
+        }
+
+        public override Value VisitFunctype(gramParser.FunctypeContext context) {
+            return ValueFactory.make(Type.Of(ValueType.FUNCTION));
+        }
+
+        public override Value VisitPredtype(gramParser.PredtypeContext context) {
+            var type = Visit(context.type());
+            var predicate = Visit(context.expr());
+            return ValueFactory.make(new Type(type.AsType.RawTypeOf, predicate, context.expr().GetText()));
+        }
+
+        public override Value VisitListtype(gramParser.ListtypeContext context) {
+            return ValueFactory.make(Type.Of(ValueType.LIST));
+        }
+
         public override Value VisitStatement_assignment(gramParser.Statement_assignmentContext context) {
             var varname = context.variable().IDENTIFIER().GetText();
             var vartype = context.variable().type();
             var value = Visit(context.expr());
 
-            ValueType type;
+            Type type;
             if (vartype != null) {
-                type = environment[vartype.GetText()].Value.AsType.TypeOf;
+                type = Visit(vartype).AsType;
             } else {
                 type = value.Type;
             }
 
-            environment.Add(new Binding(varname, value));
+            environment.Add(new Binding(varname, type, value));
             return environment[varname].Value;
         }
 
@@ -81,14 +126,14 @@ namespace ANTLR2 {
             var vartype = context.variable().type();
             var value = Visit(context.expr());
 
-            ValueType type;
+            Type type;
             if (vartype != null) {
-                type = environment[vartype.GetText()].Value.AsType.TypeOf;
+                type = Visit(vartype).AsType;
             } else {
                 type = value.Type;
             }
 
-            environment.Add(new Binding(varname, value) { ReadOnly = true });
+            environment.Add(new Binding(varname, type, value) { ReadOnly = true });
             return environment[varname].Value;
         }
 
@@ -107,6 +152,20 @@ namespace ANTLR2 {
                     return ValueFactory.make(1);
                 } else {
                     return ValueFactory.make(0);
+                }
+            }
+            if (context.op.Type == gramParser.LT) {
+                if (left.AsInt < right.AsInt) {
+                    return environment["true"].Value;
+                } else {
+                    return environment["false"].Value;
+                }
+            }
+            if (context.op.Type == gramParser.GT) {
+                if (left.AsInt > right.AsInt) {
+                    return environment["true"].Value;
+                } else {
+                    return environment["false"].Value;
                 }
             }
             throw new NotImplementedException();

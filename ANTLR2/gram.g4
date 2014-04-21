@@ -25,10 +25,11 @@ statement	: expr NL					#statement_expr
 
 expr		: if						# expr_if
 			| for						# expr_for
-			| '{' (expr NL)+ expr? '}'	# blockexpr
+			| '{' (expr NL)* expr? '}'	# blockexpr
 			| expr op=(MUL|DIV) expr	# MulDiv
 			| expr op=(ADD|SUB) expr	# AddSub
 			| expr op=(EQ|LT|GT) expr	# equality
+			| expr op=(OR|AND) expr		# logicaloperator
 			| INEQ expr					# inequality
 			| INT						# int
 			| variable					# expr_variable
@@ -36,6 +37,7 @@ expr		: if						# expr_if
 			| expr '[' expr ']'			# list_index
 			| '(' expr ')'				# parens
 			| func						# expr_func
+			| type						# expr_type
 			| 'var' variable '=' expr	# statement_assignment
 			| 'val' variable '=' expr	# statement_assignment_readonly
 			| IDENTIFIER '=' expr		# variable_assignment
@@ -45,7 +47,10 @@ variable	: IDENTIFIER
 			| IDENTIFIER ':' type
 			;
 
-type		: IDENTIFIER
+type		: IDENTIFIER					#rawtype
+			| IDENTIFIER '=>' IDENTIFIER	#functype
+			| type '<' expr '>'				#predtype
+			| '[' (type NL)* type? ']'		#listtype
 			;
 
 if			: 'if' '(' expr ')' expr ('else' expr)?
@@ -61,7 +66,7 @@ func		: IDENTIFIER '=>' expr		# func_literal
  * Lexer Rules
  */
 
- INT : [0-9]+;
+ INT : '-'?[0-9]+;
  MUL : '*';
  DIV : '/';
  ADD : '+';
@@ -70,6 +75,8 @@ func		: IDENTIFIER '=>' expr		# func_literal
  GT  : '>';
  LT  : '<';
  INEQ: '!';
+ OR  : '||';
+ AND : '&&';
  IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]*;
 
 WS

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ANTLR2 {
     class Binding {
         public string Name { get; internal set; }
-        public ValueType Type { get; internal set; }
+        public Type Type { get; internal set; }
 
         public bool ReadOnly { get; internal set; }
 
@@ -18,7 +18,7 @@ namespace ANTLR2 {
                 if (ReadOnly) {
                     throw new GramException("Cannot reassign 'val'!");
                 }
-                if (value.Type == Type) {
+                if (Type.Check(value)) {
                     this.value = value;
                 } else {
                     throw new GramException("Type violation!");
@@ -29,6 +29,12 @@ namespace ANTLR2 {
         public Binding(string name, Value val) {
             Name = name;
             Type = val.Type;
+            Value = val;
+        }
+
+        public Binding(string name, Type type, Value val) {
+            Name = name;
+            Type = type;
             Value = val;
         }
     }

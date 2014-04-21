@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace ANTLR2 {
     class Value {
-        public ValueType Type { get; private set; } 
+        public Type Type { get; private set; } 
 
         private readonly Object value;
 
-        public Value(ValueType type, Object val = null) {
-            if (type != ValueType.UNIT && val == null) {
+        public Value(Type type, Object val = null) {
+            if (type.RawTypeOf != ValueType.UNIT && val == null) {
                 throw new ArgumentNullException();
             }
             value = val;
@@ -44,7 +44,7 @@ namespace ANTLR2 {
 
         public override bool Equals(object obj) {
             if (obj is Value){
-                switch (Type) { 
+                switch (Type.RawTypeOf) { 
                     case ValueType.INTEGER:
                         return AsInt == (obj as Value).AsInt;
                     case ValueType.FUNCTION:
@@ -63,7 +63,7 @@ namespace ANTLR2 {
         }
 
         public override string ToString() {
-            if (Type == ValueType.LIST) {
+            if (Type.RawTypeOf == ValueType.LIST) {
                 return "[" + string.Join(", ", (value as IEnumerable<Value>).Select(x=>x.ToString())) + "]";
             }
             return value.ToString();
@@ -72,30 +72,30 @@ namespace ANTLR2 {
 
     class ValueFactory {
         public static Value make(int val) {
-            return new Value(ValueType.INTEGER, val);
+            return new Value(Type.Of(ValueType.INTEGER), val);
         }
 
         public static Value make(Func<int, int> val) {
             Func<Value, Value> func = f => { 
                 return ValueFactory.make(val(f.AsInt)); 
             };
-            return new Value(ValueType.FUNCTION, func);
+            return new Value(Type.Of(ValueType.FUNCTION), func);
         }
 
         public static Value make(Func<Value, Value> val) {
-            return new Value(ValueType.FUNCTION, val);
+            return new Value(Type.Of(ValueType.FUNCTION), val);
         }
 
         public static Value make(IEnumerable<Value> val) {
-            return new Value(ValueType.LIST, val.ToList());
+            return new Value(Type.Of(ValueType.LIST), val.ToList());
         }
 
         public static Value make(Type val) {
-            return new Value(ValueType.TYPE, val);
+            return new Value(Type.Of(ValueType.TYPE), val);
         }
 
         public static Value make() {
-            return new Value(ValueType.UNIT);
+            return new Value(Type.Of(ValueType.UNIT));
         }
 
     }
