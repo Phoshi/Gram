@@ -27,7 +27,16 @@ namespace ANTLR2 {
         public Type AsType { get { return (Type)value; } }
 
         public static Value operator +(Value a, Value b){
-            return ValueFactory.make(a.AsInt + b.AsInt);
+            if (a.Type.RawTypeOf == ValueType.INTEGER && b.Type.RawTypeOf == ValueType.INTEGER){
+                return ValueFactory.make(a.AsInt + b.AsInt);
+            }
+            if (a.Type.RawTypeOf == ValueType.LIST) {
+                var list = new List<Value>(a.AsList);
+                list.Add(b);
+                return ValueFactory.make(list);
+            }
+
+            throw new GramException(a.Type + "+" + b.Type + " has no known operator+");
         }
 
         public static Value operator -(Value a, Value b) {
@@ -64,7 +73,10 @@ namespace ANTLR2 {
 
         public override string ToString() {
             if (Type.RawTypeOf == ValueType.LIST) {
-                return "[" + string.Join(", ", (value as IEnumerable<Value>).Select(x=>x.ToString())) + "]";
+                return "{" + string.Join("; ", (value as IEnumerable<Value>).Select(x=>x.ToString())) + "}";
+            }
+            if (Type.RawTypeOf == ValueType.UNIT) {
+                return "Unit";
             }
             return value.ToString();
         }
