@@ -38,13 +38,17 @@ expr		: if						# expr_if
 			| '(' expr ')'				# parens
 			| func						# expr_func
 			| type						# expr_type
-			| 'var' variable '=' expr	# statement_assignment
-			| 'val' variable '=' expr	# statement_assignment_readonly
+			| 'var' binding '=' expr	# statement_assignment
+			| 'val' binding '=' expr	# statement_assignment_readonly
 			| IDENTIFIER '=' expr		# variable_assignment
 			;
 
 variable	: IDENTIFIER
 			| IDENTIFIER ':' type
+			;
+
+binding		: variable
+			| '{' (variable NL)* variable? '}'
 			;
 
 type		: IDENTIFIER					#rawtype
@@ -56,10 +60,10 @@ type		: IDENTIFIER					#rawtype
 if			: 'if' '(' expr ')' expr ('else' expr)?
 			;
 
-for			: 'for' '(' IDENTIFIER ':' expr ')' expr
+for			: 'for' '(' binding ':' expr ')' expr
 			;
 
-func		: IDENTIFIER '=>' expr		# func_literal
+func		: binding '=>' expr		# func_literal
 			;
 
 /*
@@ -77,7 +81,7 @@ func		: IDENTIFIER '=>' expr		# func_literal
  INEQ: '!';
  OR  : '||';
  AND : '&&';
- IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]*;
+ IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_']*;
 
 WS
 	:	(' ' | '\r' | '\n') -> channel(HIDDEN)

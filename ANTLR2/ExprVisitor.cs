@@ -15,6 +15,7 @@ namespace ANTLR2 {
             new Binding("int", ValueFactory.make(new Type(ValueType.INTEGER))),
             new Binding("true", ValueFactory.make(1)),
             new Binding("false", ValueFactory.make(0)),
+            new Binding("DEBUG", ValueFactory.make(0)),
         };
 
         private ExprVisitor newScope() {
@@ -27,6 +28,19 @@ namespace ANTLR2 {
 
         public ExprVisitor() {}
 
+        public override Value Visit(Antlr4.Runtime.Tree.IParseTree tree) {
+            if (environment["DEBUG"].Value == environment["true"].Value) {
+                Console.WriteLine("Interpreting: " + tree.GetText());
+                Console.WriteLine("========================================================");
+                Console.WriteLine("In environment: " + environment);
+                Console.WriteLine("========================================================");
+                var result = base.Visit(tree);
+                Console.WriteLine("Resulting in: " + result);
+                Console.WriteLine("========================================================");
+                return result;
+            }
+            return base.Visit(tree);
+        }
         public override Value VisitStatement_expr(gramParser.Statement_exprContext context) {
             return Visit(context.expr());
         }
@@ -106,35 +120,29 @@ namespace ANTLR2 {
         }
 
         public override Value VisitStatement_assignment(gramParser.Statement_assignmentContext context) {
-            var varname = context.variable().IDENTIFIER().GetText();
-            var vartype = context.variable().type();
             var value = Visit(context.expr());
 
-            Type type;
-            if (vartype != null) {
-                type = Visit(vartype).AsType;
+            var bindings = setBindings(context.binding(), value);
+            if (bindings.Count == 1) {
+                return bindings.First().Value;
             } else {
-                type = value.Type;
+                return ValueFactory.make(bindings.Select(bind => bind.Value));
             }
-
-            environment.Add(new Binding(varname, type, value));
-            return environment[varname].Value;
         }
 
         public override Value VisitStatement_assignment_readonly(gramParser.Statement_assignment_readonlyContext context) {
-            var varname = context.variable().IDENTIFIER().GetText();
-            var vartype = context.variable().type();
             var value = Visit(context.expr());
 
-            Type type;
-            if (vartype != null) {
-                type = Visit(vartype).AsType;
-            } else {
-                type = value.Type;
+            var bindings = setBindings(context.binding(), value);
+            foreach (var bind in bindings){
+                bind.ReadOnly = true;
             }
 
-            environment.Add(new Binding(varname, type, value) { ReadOnly = true });
-            return environment[varname].Value;
+            if (bindings.Count == 1) {
+                return bindings.First().Value;
+            } else {
+                return ValueFactory.make(bindings.Select(bind => bind.Value));
+            }
         }
 
         public override Value VisitVariable_assignment(gramParser.Variable_assignmentContext context) {
@@ -187,9 +195,8 @@ namespace ANTLR2 {
 
         public override Value VisitFunc_literal(gramParser.Func_literalContext context) {
             Func<Value, Value> func = x => {
-                var identifier = context.IDENTIFIER().GetText();
                 var scope = newScope();
-                scope.environment[identifier] = new Binding(identifier, x);
+                scope.setBindings(context.binding(), x);
                 return scope.Visit(context.expr());
             };
             return ValueFactory.make(func);
@@ -203,7 +210,11 @@ namespace ANTLR2 {
             var list = Visit(context.expr(0)).AsList;
             var index = Visit(context.expr(1)).AsInt;
 
-            return list.Skip(index).First();
+            if (index >= 0) {
+                return list.Skip(index).First();
+            } else {
+                return list.Reverse().Skip(-index-1).First();
+            }
         }
 
         public override Value VisitIf(gramParser.IfContext context) {
@@ -219,16 +230,62 @@ namespace ANTLR2 {
         }
 
         public override Value VisitFor(gramParser.ForContext context) {
-            var identifier = context.IDENTIFIER().GetText();
             var iterable = Visit(context.expr(0));
 
             var results = new List<Value>();
             foreach (var item in iterable.AsList){
                 var scope = newScope();
-                scope.environment[identifier] = new Binding(identifier, item);
+                scope.setBindings(context.binding(), item);
                 results.Add(scope.Visit(context.expr(1)));
             }
             return ValueFactory.make(results);
+        }
+
+        public IList<Binding> setBindings(gramParser.BindingContext context, Value val){
+            if (val.Type.RawTypeOf == ValueType.LIST && context.variable().Count > 1) {
+                return _setBindings(context, val.AsList.ToList());
+            } else {
+                return new[]{_setBindings(context, val)};
+            }
+        }
+
+        private Binding _setBindings(gramParser.BindingContext context, Value val){
+            var name =  context.variable(0).IDENTIFIER().GetText();
+            var typeid = context.variable(0).type();
+
+            Type type;
+            if (typeid != null) {
+                type = Visit(typeid).AsType;
+            } else {
+                type = val.Type;
+            }
+
+            var binding = new Binding(name, type, val);
+            environment.Add(binding);
+            return binding;
+        }
+
+        private IList<Binding> _setBindings(gramParser.BindingContext context, IList<Value> vals){
+            var bindings = new List<Binding>();
+            int iteration = 0;
+            foreach (var val in vals){
+                var name = context.variable(iteration).IDENTIFIER().GetText();
+                var typeid = context.variable(iteration).type();
+
+                Type type;
+                if (typeid != null) {
+                    type = Visit(typeid).AsType;
+                } else {
+                    type = vals[iteration].Type;
+                }
+
+                var binding = new Binding(name, type, vals[iteration]);
+                environment.Add(binding);
+                bindings.Add(binding);
+
+                iteration++;
+            }
+            return bindings;
         }
     }
 }
