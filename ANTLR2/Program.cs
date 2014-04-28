@@ -21,7 +21,10 @@ namespace ANTLR2 {
                 Console.WriteLine("| " + tree.ToStringTree(parser));
                 Console.Write("> ");
                 try {
-                    Console.WriteLine(visitor.Visit(tree));
+                    Value result = visitor.Visit(tree);
+                    if (result.Type.RawTypeOf != ValueType.UNIT) {
+                        Console.WriteLine(result);
+                    }
                     Console.WriteLine();
                 } catch (GramException ex) {
                     Console.WriteLine(ex.Message);
