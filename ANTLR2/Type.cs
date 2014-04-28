@@ -32,7 +32,7 @@ namespace ANTLR2 {
         }
 
         public override string ToString() {
-            return "Type: " + RawTypeOf + "; Predicate: " + predicateDescription;
+            return "Type: " + RawTypeOf + (Predicate == nopPredicate ? "" : "; Predicate: " + predicateDescription);
         }
 
         public bool Check(Value val) {
