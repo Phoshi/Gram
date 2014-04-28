@@ -49,5 +49,9 @@ namespace ANTLR2 {
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
             return bindings.Values.GetEnumerator();
         }
+
+        public override string ToString() {
+            return string.Join(";", bindings.Select(kvpair => kvpair.Key + ":" + kvpair.Value.Value));
+        }
     }
 }
