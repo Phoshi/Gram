@@ -27,42 +27,25 @@ namespace ANTLR2 {
         public Type AsType { get { return (Type)value; } }
 
         public static Value operator +(Value a, Value b){
-            if (a.Type.RawTypeOf == ValueType.INTEGER && b.Type.RawTypeOf == ValueType.INTEGER){
-                return ValueFactory.make(a.AsInt + b.AsInt);
-            }
-            if (a.Type.RawTypeOf == ValueType.LIST) {
-                var list = new List<Value>(a.AsList);
-                list.Add(b);
-                return ValueFactory.make(list);
-            }
-
-            throw new GramException(a.Type + "+" + b.Type + " has no known operator+");
+            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "+", b);
         }
 
         public static Value operator -(Value a, Value b) {
-            return ValueFactory.make(a.AsInt - b.AsInt);
+            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "-", b);
         }
 
         public static Value operator *(Value a, Value b) {
-            return ValueFactory.make(a.AsInt * b.AsInt);
+            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "*", b);
         }
 
         public static Value operator /(Value a, Value b) {
-            return ValueFactory.make(a.AsInt / b.AsInt);
+            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "/", b);
         }
 
         public override bool Equals(object obj) {
-            if (obj is Value){
-                switch (Type.RawTypeOf) { 
-                    case ValueType.INTEGER:
-                        return AsInt == (obj as Value).AsInt;
-                    case ValueType.FUNCTION:
-                        return AsFunc == (obj as Value).AsFunc;
-                    case ValueType.LIST:
-                        return AsList == (obj as Value).AsList;
-                    case ValueType.TYPE:
-                        return AsType == (obj as Value).AsType;
-                }
+            if (obj is Value) {
+                var val2 = obj as Value;
+                return ValueBehaviourFactory.GetBehaviour(this, val2).BinaryOperator(this, "==", val2).AsInt == 1;
             }
             return false;
         }

@@ -13,7 +13,11 @@ namespace ANTLR2 {
             while (true) {
                 Console.Write("$ ");
                 var input = new StreamReader(Console.OpenStandardInput());
-                var antlrStream = new AntlrInputStream(input.ReadLine());
+                string text = "";
+                while (text.LastOrDefault() != ';') {
+                    text += input.ReadLine();
+                }
+                var antlrStream = new AntlrInputStream(text);
                 var lexer = new gramLexer(antlrStream);
                 var tokens = new CommonTokenStream(lexer);
                 var parser = new gramParser(tokens);
