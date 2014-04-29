@@ -33,7 +33,7 @@ expr		: if						# expr_if
 			| INEQ expr					# inequality
 			| INT						# int
 			| variable					# expr_variable
-			| expr '(' expr ')' 		# statement_func_call
+			| expr '('? expr ')'? 		# statement_func_call
 			| expr '[' expr ']'			# list_index
 			| '(' expr ')'				# parens
 			| func						# expr_func
@@ -84,7 +84,7 @@ func		: binding '=>' expr		# func_literal
  IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_']*;
 
 WS
-	:	(' ' | '\r' | '\n') -> channel(HIDDEN)
+	:	(' ' | '\r' | '\n' | '\t') -> channel(HIDDEN)
 	;
 
 NL : ';'+;
