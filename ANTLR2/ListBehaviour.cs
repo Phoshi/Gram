@@ -7,6 +7,10 @@ namespace ANTLR2 {
     class ListBehaviour : ValueBehaviour {
         public Value BinaryOperator(Value operand1, string op, Value operand2) {
             switch (op) {
+                case "+":
+                    var list = new List<Value>(operand1.AsList);
+                    list.Add(operand2);
+                    return ValueFactory.make(list);
                 case "==":
                     if (operand1.AsList.Count() != operand2.AsList.Count()) {
                         return ValueFactory.make(0);
