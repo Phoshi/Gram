@@ -61,6 +61,9 @@ namespace ANTLR2 {
             if (Type.RawTypeOf == ValueType.UNIT) {
                 return "Unit";
             }
+            if (Type.RawTypeOf == ValueType.FUNCTION) {
+                return Type.ToString();
+            }
             return value.ToString();
         }
     }
