@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ANTLR2.ValueBehaviour;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,6 +43,14 @@ namespace ANTLR2 {
             return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "/", b);
         }
 
+        public Value Operator(string op, Value operand){
+            return ValueBehaviourFactory.GetBehaviour(this, operand).BinaryOperator(this, op, operand);
+        }
+
+        public Value Operator(string op) {
+            return ValueBehaviourFactory.GetBehaviour(this).UnaryOperator(this, op);
+        }
+
         public override bool Equals(object obj) {
             if (obj is Value) {
                 var val2 = obj as Value;
@@ -71,6 +80,10 @@ namespace ANTLR2 {
     class ValueFactory {
         public static Value make(int val) {
             return new Value(Type.Of(ValueType.INTEGER), val);
+        }
+
+        public static Value make(bool val) {
+            return new Value(Type.Of(ValueType.INTEGER), val ? 1 : 0);
         }
 
         public static Value make(Func<int, int> val) {

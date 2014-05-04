@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ANTLR2 {
+namespace ANTLR2.ValueBehaviour {
     class ListBehaviour : ValueBehaviour {
         public Value BinaryOperator(Value operand1, string op, Value operand2) {
             switch (op) {
@@ -19,6 +19,11 @@ namespace ANTLR2 {
                     return ValueFactory.make(areSame ? 1 : 0);
             }
 
+            throw new InvalidOperationException();
+        }
+
+
+        public Value UnaryOperator(Value operand1, string op) {
             throw new InvalidOperationException();
         }
     }

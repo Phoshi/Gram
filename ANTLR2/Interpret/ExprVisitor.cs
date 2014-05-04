@@ -12,6 +12,9 @@ namespace ANTLR2 {
                     var t = x.Type;
                     return ValueFactory.make(t);
             })),
+            new Binding("length", ValueFactory.make(x=>{
+                return ValueFactory.make(x.AsList.Count());
+            })),
             new Binding("int", ValueFactory.make(new Type(ValueType.INTEGER))),
             new Binding("true", ValueFactory.make(1)),
             new Binding("false", ValueFactory.make(0)),
@@ -53,10 +56,7 @@ namespace ANTLR2 {
             var left = Visit(context.expr(0));
             var right = Visit(context.expr(1));
 
-            if (context.op.Type == gramParser.ADD) {
-                return left + right;
-            }
-            return left - right;
+            return left.Operator(context.op.Text, right);
         }
 
         public override Value VisitMulDiv(gramParser.MulDivContext context) {
@@ -64,10 +64,7 @@ namespace ANTLR2 {
             var right = Visit(context.expr(1));
 
 
-            if (context.op.Type == gramParser.MUL) {
-                return left * right;
-            }
-            return left / right;
+            return left.Operator(context.op.Text, right);
         }
 
         public override Value VisitLogicaloperator(gramParser.LogicaloperatorContext context) {
@@ -155,42 +152,17 @@ namespace ANTLR2 {
             var left = Visit(context.expr(0));
             var right = Visit(context.expr(1));
 
-            if (context.op.Type == gramParser.EQ) {
-                if (left.Equals(right)) {
-                    return ValueFactory.make(1);
-                } else {
-                    return ValueFactory.make(0);
-                }
-            }
-            if (context.op.Type == gramParser.LT) {
-                if (left.AsInt < right.AsInt) {
-                    return environment["true"].Value;
-                } else {
-                    return environment["false"].Value;
-                }
-            }
-            if (context.op.Type == gramParser.GT) {
-                if (left.AsInt > right.AsInt) {
-                    return environment["true"].Value;
-                } else {
-                    return environment["false"].Value;
-                }
-            }
-            throw new NotImplementedException();
+            return left.Operator(context.op.Text, right);
         }
 
         public override Value VisitInequality(gramParser.InequalityContext context) {
             var result = Visit(context.expr());
-            if (result.AsInt == 0) {
-                return ValueFactory.make(1);
-            } else {
-                return ValueFactory.make(0);
-            }
+            return result.Operator(context.INEQ().GetText());
         }
 
         public override Value VisitStatement_func_call(gramParser.Statement_func_callContext context) {
-            var func = Visit(context.expr(0)).AsFunc;
-            return func(Visit(context.expr(1)));
+            var func = Visit(context.expr(0));
+            return func.Operator("()", Visit(context.expr(1)));
         }
 
         public override Value VisitFunc_literal(gramParser.Func_literalContext context) {
@@ -207,14 +179,10 @@ namespace ANTLR2 {
         }
 
         public override Value VisitList_index(gramParser.List_indexContext context) {
-            var list = Visit(context.expr(0)).AsList;
-            var index = Visit(context.expr(1)).AsInt;
+            var list = Visit(context.expr(0));
+            var index = Visit(context.expr(1));
 
-            if (index >= 0) {
-                return list.Skip(index).First();
-            } else {
-                return list.Reverse().Skip(-index-1).First();
-            }
+            return list.Operator("[]", index);
         }
 
         public override Value VisitIf(gramParser.IfContext context) {
@@ -238,6 +206,20 @@ namespace ANTLR2 {
                 scope.setBindings(context.binding(), item);
                 results.Add(scope.Visit(context.expr(1)));
             }
+            return ValueFactory.make(results);
+        }
+
+        public override Value VisitWhile(gramParser.WhileContext context) {
+            var conditional = Visit(context.expr(0));
+
+            var results = new List<Value>();
+            while (conditional.AsInt == 1) {
+                var scope = newScope();
+                results.Add(scope.Visit(context.expr(1)));
+
+                conditional = Visit(context.expr(0));
+            }
+
             return ValueFactory.make(results);
         }
 

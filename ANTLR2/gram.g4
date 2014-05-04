@@ -25,6 +25,7 @@ statement	: expr NL					#statement_expr
 
 expr		: if						# expr_if
 			| for						# expr_for
+			| while						# expr_while
 			| '{' (expr NL)* expr? '}'	# blockexpr
 			| expr op=(MUL|DIV) expr	# MulDiv
 			| expr op=(ADD|SUB) expr	# AddSub
@@ -61,6 +62,9 @@ if			: 'if' '(' expr ')' expr ('else' expr)?
 			;
 
 for			: 'for' '(' binding ':' expr ')' expr
+			;
+
+while		: 'while' '(' expr ')' expr
 			;
 
 func		: binding '=>' expr		# func_literal

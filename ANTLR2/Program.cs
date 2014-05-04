@@ -8,8 +8,44 @@ using System.Threading.Tasks;
 
 namespace ANTLR2 {
     class Program {
+        public static string prelude = @"   val range = p=> range'(p+{p[0]});
+                                            val range' = {current; end; rangeList} => 
+                                                if (current == end) 
+                                                    rangeList 
+                                                else 
+                                                    range'({current + 1; end; rangeList + (current+1)});
+
+                                            var head = list=>list[0];
+
+                                            var tail = l=>{
+                                                var all = {}; 
+                                                var first = true; 
+                                                for (elem:l) 
+                                                    if (first) 
+                                                        first = false 
+                                                    else 
+                                                        all = all + elem;
+                                                all}[-1];
+
+                                            val map = {f; iter} => for(i:iter) f(i);
+
+                                            val filter = args=>filter'(args + {});
+
+                                            val filter' = {f; iter; current} => 
+                                                if (length(iter) == 0) 
+                                                    current 
+                                                else if (f(head(iter))) 
+                                                    filter'{f; tail iter; current + (head(iter))} 
+                                                else 
+                                                    filter'{f; tail iter; current};";
         static void Main(string[] args){
             var visitor = new ExprVisitor();
+            var preludeInput = new AntlrInputStream(prelude);
+            var preludeLexer = new gramLexer(preludeInput);
+            var preludeTokens = new CommonTokenStream(preludeLexer);
+            var preludeParser = new gramParser(preludeTokens);
+            visitor.Visit(preludeParser.prog());
+
             while (true) {
                 Console.Write("$ ");
                 var input = new StreamReader(Console.OpenStandardInput());
