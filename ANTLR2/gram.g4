@@ -48,14 +48,14 @@ variable	: IDENTIFIER
 			| IDENTIFIER ':' type
 			;
 
-binding		: variable
-			| '{' (variable NL)* variable? '}'
+binding		: variable						#binding_single
+			| '{' (binding NL)* binding? '}'#binding_multiple
 			;
 
 type		: IDENTIFIER					#rawtype
-			| IDENTIFIER '=>' IDENTIFIER	#functype
+			| type '=>' type				#functype
 			| type '<' expr '>'				#predtype
-			| '[' (type NL)* type? ']'		#listtype
+			| '{' (type NL)* type? '}'		#listtype
 			;
 
 if			: 'if' '(' expr ')' expr ('else' expr)?

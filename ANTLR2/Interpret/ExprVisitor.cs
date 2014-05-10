@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ANTLR2.Interpret;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -113,7 +114,19 @@ namespace ANTLR2 {
         }
 
         public override Value VisitListtype(gramParser.ListtypeContext context) {
-            return ValueFactory.make(Type.Of(ValueType.LIST));
+            var types = context.type().Select(t => Visit(t)).ToList();
+            Func<Value, Value> typeChecker = l => {
+                var list = l.AsList.ToList();
+                var index = 0;
+                foreach (var type in types){
+                    if (list.Count <= index || !type.AsType.Check(list[index])) {
+                        return ValueFactory.make(false);
+                    }
+                    index = index + 1;
+                }
+                return ValueFactory.make(list.Count == index);
+            };
+            return ValueFactory.make(new Type(ValueType.LIST, ValueFactory.make(typeChecker), context.GetText()));
         }
 
         public override Value VisitStatement_assignment(gramParser.Statement_assignmentContext context) {
@@ -224,50 +237,15 @@ namespace ANTLR2 {
         }
 
         public IList<Binding> setBindings(gramParser.BindingContext context, Value val){
-            if (val.Type.RawTypeOf == ValueType.LIST && context.variable().Count > 1) {
-                return _setBindings(context, val.AsList.ToList());
-            } else {
-                return new[]{_setBindings(context, val)};
-            }
-        }
+            var bindingExplorer = new BindingExplorer(this, val);
+            var bindings = bindingExplorer.Visit(context);
+            var binds = bindings.GetAllValues().ToList();
 
-        private Binding _setBindings(gramParser.BindingContext context, Value val){
-            var name =  context.variable(0).IDENTIFIER().GetText();
-            var typeid = context.variable(0).type();
-
-            Type type;
-            if (typeid != null) {
-                type = Visit(typeid).AsType;
-            } else {
-                type = val.Type;
+            foreach (var bind in binds) {
+                environment.Add(bind);
             }
 
-            var binding = new Binding(name, type, val);
-            environment.Add(binding);
-            return binding;
-        }
-
-        private IList<Binding> _setBindings(gramParser.BindingContext context, IList<Value> vals){
-            var bindings = new List<Binding>();
-            int iteration = 0;
-            foreach (var val in vals){
-                var name = context.variable(iteration).IDENTIFIER().GetText();
-                var typeid = context.variable(iteration).type();
-
-                Type type;
-                if (typeid != null) {
-                    type = Visit(typeid).AsType;
-                } else {
-                    type = vals[iteration].Type;
-                }
-
-                var binding = new Binding(name, type, vals[iteration]);
-                environment.Add(binding);
-                bindings.Add(binding);
-
-                iteration++;
-            }
-            return bindings;
+            return binds;
         }
     }
 }

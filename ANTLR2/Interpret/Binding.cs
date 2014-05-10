@@ -15,7 +15,10 @@ namespace ANTLR2 {
         public Value Value { 
             get { return value; }
             set {
-                if (ReadOnly) {
+                if (Type.Check(ValueType.UNIT)) {
+                    Type = value.Type;
+                }
+                if (ReadOnly && !value.Type.Check(ValueType.UNIT)) {
                     throw new GramException("Cannot reassign 'val'!");
                 }
                 if (Type.Check(value)) {
@@ -24,6 +27,16 @@ namespace ANTLR2 {
                     throw new GramException("Type violation!");
                 }
             }
+        }
+
+        public Binding(string name) {
+            Name = name;
+            Type = Type.Of(ValueType.UNIT);
+        }
+
+        public Binding(string name, Type type) {
+            Name = name;
+            Type = type;
         }
 
         public Binding(string name, Value val) {
