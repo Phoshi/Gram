@@ -36,15 +36,21 @@ namespace ANTLR2 {
         }
 
         public bool Check(Value val) {
-            return val.Type == this && Predicate.AsFunc(val).AsInt != 0;
+            return val.Type.RawTypeOf == RawTypeOf && Predicate.AsFunc(val).AsInt != 0;
+        }
+
+        public bool Check(Type type) {
+            return type.RawTypeOf == RawTypeOf;// && type.Predicate == Predicate;
+        }
+
+        public bool Check(ValueType type) {
+            return RawTypeOf == type;
         }
 
         public override bool Equals(object obj) {
             if (obj is Type) {
                 var otherType = obj as Type;
-                if (otherType.RawTypeOf == RawTypeOf) {
-                    return true;
-                }
+                return Check(otherType);
             }
 
             return false;
