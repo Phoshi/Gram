@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime;
+﻿using ANTLR2.Value;
+using Antlr4.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,7 +62,7 @@ namespace ANTLR2 {
                 Console.WriteLine("| " + tree.ToStringTree(parser));
                 Console.Write("> ");
                 try {
-                    Value result = visitor.Visit(tree);
+                    IValue result = visitor.Visit(tree);
                     if (result.Type.RawTypeOf != ValueType.UNIT) {
                         Console.WriteLine(result);
                     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ANTLR2.Value;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace ANTLR2.ValueBehaviour {
     class IntBehaviour : ValueBehaviour {
-        public Value BinaryOperator(Value operand1, string op, Value operand2) {
+        public IValue BinaryOperator(IValue operand1, string op, IValue operand2) {
             switch (op){
-                case "+":   return ValueFactory.make(operand1.AsInt + operand2.AsInt);
-                case "-":   return ValueFactory.make(operand1.AsInt - operand2.AsInt);
-                case "/":   return ValueFactory.make(operand1.AsInt / operand2.AsInt);
-                case "*":   return ValueFactory.make(operand1.AsInt * operand2.AsInt);
-                case "==":  return ValueFactory.make(operand1.AsInt == operand2.AsInt);
-                case ">":   return ValueFactory.make(operand1.AsInt > operand2.AsInt);
-                case "<":   return ValueFactory.make(operand1.AsInt < operand2.AsInt);
+                case "+":   return ValueFactory.make(operand1.Get<int>() + operand2.Get<int>());
+                case "-":   return ValueFactory.make(operand1.Get<int>() - operand2.Get<int>());
+                case "/":   return ValueFactory.make(operand1.Get<int>() / operand2.Get<int>());
+                case "*":   return ValueFactory.make(operand1.Get<int>() * operand2.Get<int>());
+                case "==":  return ValueFactory.make(operand1.Get<int>() == operand2.Get<int>());
+                case ">":   return ValueFactory.make(operand1.Get<int>() > operand2.Get<int>());
+                case "<":   return ValueFactory.make(operand1.Get<int>() < operand2.Get<int>());
             }
 
             throw new InvalidOperationException();
@@ -22,10 +23,10 @@ namespace ANTLR2.ValueBehaviour {
 
 
 
-        public Value UnaryOperator(Value operand1, string op) {
+        public IValue UnaryOperator(IValue operand1, string op) {
             switch (op) {
                 case "!":
-                    return ValueFactory.make(operand1.AsInt == 0);
+                    return ValueFactory.make(operand1 != ValueFactory.make(true));
             }
 
             throw new InvalidOperationException();

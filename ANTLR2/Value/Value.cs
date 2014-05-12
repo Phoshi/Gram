@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ANTLR2 {
-    class Value {
+namespace ANTLR2.Value {
+    class Value : IValue {
         public Type Type { get; private set; } 
 
         private readonly Object value;
@@ -23,38 +23,26 @@ namespace ANTLR2 {
 
         public Func<Value, Value> AsFunc { get { return (Func<Value, Value>)value; } }
 
-        public IEnumerable<Value> AsList { get { return (IEnumerable<Value>)value; } }
+        public IEnumerable<IValue> AsList { get { return (IEnumerable<IValue>)value; } }
 
         public Type AsType { get { return (Type)value; } }
 
-        public static Value operator +(Value a, Value b){
-            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "+", b);
+        public T Get<T>() {
+            return (T)value;
         }
 
-        public static Value operator -(Value a, Value b) {
-            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "-", b);
-        }
-
-        public static Value operator *(Value a, Value b) {
-            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "*", b);
-        }
-
-        public static Value operator /(Value a, Value b) {
-            return ValueBehaviourFactory.GetBehaviour(a, b).BinaryOperator(a, "/", b);
-        }
-
-        public Value Operator(string op, Value operand){
+        public IValue Operator(string op, IValue operand){
             return ValueBehaviourFactory.GetBehaviour(this, operand).BinaryOperator(this, op, operand);
         }
 
-        public Value Operator(string op) {
+        public IValue Operator(string op) {
             return ValueBehaviourFactory.GetBehaviour(this).UnaryOperator(this, op);
         }
 
         public override bool Equals(object obj) {
             if (obj is Value) {
                 var val2 = obj as Value;
-                return ValueBehaviourFactory.GetBehaviour(this, val2).BinaryOperator(this, "==", val2).AsInt == 1;
+                return (ValueBehaviourFactory.GetBehaviour(this, val2).BinaryOperator(this, "==", val2)).Get<int>() == 1;
             }
             return false;
         }
@@ -65,7 +53,7 @@ namespace ANTLR2 {
 
         public override string ToString() {
             if (Type.RawTypeOf == ValueType.LIST) {
-                return "{" + string.Join("; ", (value as IEnumerable<Value>).Select(x=>x.ToString())) + "}";
+                return "{" + string.Join("; ", (value as IEnumerable<IValue>).Select(x=>x.ToString())) + "}";
             }
             if (Type.RawTypeOf == ValueType.UNIT) {
                 return "Unit";
@@ -78,34 +66,34 @@ namespace ANTLR2 {
     }
 
     class ValueFactory {
-        public static Value make(int val) {
+        public static IValue make(int val) {
             return new Value(Type.Of(ValueType.INTEGER), val);
         }
 
-        public static Value make(bool val) {
+        public static IValue make(bool val) {
             return new Value(Type.Of(ValueType.INTEGER), val ? 1 : 0);
         }
 
-        public static Value make(Func<int, int> val) {
-            Func<Value, Value> func = f => { 
-                return ValueFactory.make(val(f.AsInt)); 
+        public static IValue make(Func<int, int> val) {
+            Func<IValue, IValue> func = f => { 
+                return ValueFactory.make(val(f.Get<int>())); 
             };
             return new Value(Type.Of(ValueType.FUNCTION), func);
         }
 
-        public static Value make(Func<Value, Value> val) {
+        public static IValue make(Func<IValue, IValue> val) {
             return new Value(Type.Of(ValueType.FUNCTION), val);
         }
 
-        public static Value make(IEnumerable<Value> val) {
+        public static IValue make(IEnumerable<IValue> val) {
             return new Value(Type.Of(ValueType.LIST), val.ToList());
         }
 
-        public static Value make(Type val) {
+        public static IValue make(Type val) {
             return new Value(Type.Of(ValueType.TYPE), val);
         }
 
-        public static Value make() {
+        public static IValue make() {
             return new Value(Type.Of(ValueType.UNIT));
         }
 

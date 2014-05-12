@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ANTLR2.Value;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,8 +13,10 @@ namespace ANTLR2 {
 
         public ValueType RawTypeOf { get; internal set; }
 
-        public Value Predicate { get; internal set; }
-        private static Value nopPredicate = ValueFactory.make(x => ValueFactory.make(1));
+        private IValue parentValue;
+
+        public IValue Predicate { get; internal set; }
+        private static IValue nopPredicate = ValueFactory.make(x => ValueFactory.make(1));
 
         private string predicateDescription = "";
 
@@ -22,12 +25,19 @@ namespace ANTLR2 {
             Predicate = nopPredicate;
         }
 
-        public Type(ValueType type, Value predicate, string predicateDescription) {
+        public Type(ValueType type, IValue predicate, string predicateDescription) {
             if (!Type.Of(ValueType.FUNCTION).Check(predicate)) {
                 throw new InvalidOperationException("Predicate must be function type");
             }
             RawTypeOf = type;
             Predicate = predicate;
+            this.predicateDescription = predicateDescription;
+            this.parentValue = null;
+        }
+
+        public Type(IValue parent, IValue predicate, string predicateDescription) {
+            this.parentValue = parent;
+            this.Predicate = predicate;
             this.predicateDescription = predicateDescription;
         }
 
@@ -35,8 +45,8 @@ namespace ANTLR2 {
             return "Type: " + RawTypeOf + (Predicate == nopPredicate ? "" : "; Predicate: " + predicateDescription);
         }
 
-        public bool Check(Value val) {
-            return val.Type.RawTypeOf == RawTypeOf && Predicate.AsFunc(val).AsInt != 0;
+        public bool Check(IValue val) {
+            return val.Type.RawTypeOf == RawTypeOf;// && Predicate.Operator("()", val) == ValueFactory.make(true);//Predicate.AsFunc(val).AsInt != 0;
         }
 
         public bool Check(Type type) {

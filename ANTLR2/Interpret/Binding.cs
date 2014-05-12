@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ANTLR2.Value;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,8 @@ namespace ANTLR2 {
 
         public bool ReadOnly { get; internal set; }
 
-        private Value value = ValueFactory.make();
-        public Value Value { 
+        private IValue value = ValueFactory.make();
+        public IValue Value { 
             get { return value; }
             set {
                 if (Type.Check(ValueType.UNIT)) {
@@ -39,13 +40,13 @@ namespace ANTLR2 {
             Type = type;
         }
 
-        public Binding(string name, Value val) {
+        public Binding(string name, IValue val) {
             Name = name;
             Type = val.Type;
             Value = val;
         }
 
-        public Binding(string name, Type type, Value val) {
+        public Binding(string name, Type type, IValue val) {
             Name = name;
             Type = type;
             Value = val;
