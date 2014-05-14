@@ -6,6 +6,8 @@ namespace ANTLR2.Value {
         IValue Operator(string op, IValue operand);
         Type Type { get; }
 
+        IValue Constrain(Type t);
+
         T Get<T>();
     }
 }

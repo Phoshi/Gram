@@ -21,6 +21,11 @@ namespace ANTLR2.Value {
 
         public Type Type {
             get { return Type.Of(ValueType.FUNCTION); }
+            set { }
+        }
+
+        public IValue Constrain(Type t) {
+            return this;
         }
 
         public T Get<T>() {

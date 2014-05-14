@@ -22,8 +22,8 @@ namespace ANTLR2 {
                 if (ReadOnly && !value.Type.Check(ValueType.UNIT)) {
                     throw new GramException("Cannot reassign 'val'!");
                 }
-                if (Type.Check(value)) {
-                    this.value = value;
+                if (value.Type == Type || Type.Check(value)) {
+                    this.value = value.Constrain(Type);
                 } else {
                     throw new GramException("Type violation!");
                 }

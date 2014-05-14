@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ANTLR2.Value {
     class Value : IValue {
-        public Type Type { get; private set; } 
+        public Type Type { get; set; } 
 
         private readonly Object value;
 
@@ -17,6 +17,11 @@ namespace ANTLR2.Value {
             }
             value = val;
             Type = type;
+        }
+
+        public Value(Type type, IValue val) {
+            Type = type;
+            value = val.Get<object>();
         }
 
         public int AsInt { get { return (int)value; } }
@@ -39,6 +44,10 @@ namespace ANTLR2.Value {
             return ValueBehaviourFactory.GetBehaviour(this).UnaryOperator(this, op);
         }
 
+        public IValue Constrain(Type t) {
+            return new Value(t, this);
+        }
+
         public override bool Equals(object obj) {
             if (obj is Value) {
                 var val2 = obj as Value;
@@ -57,9 +66,6 @@ namespace ANTLR2.Value {
             }
             if (Type.RawTypeOf == ValueType.UNIT) {
                 return "Unit";
-            }
-            if (Type.RawTypeOf == ValueType.FUNCTION) {
-                return Type.ToString();
             }
             return value.ToString();
         }
