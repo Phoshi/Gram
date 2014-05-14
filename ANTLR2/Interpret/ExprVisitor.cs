@@ -112,7 +112,7 @@ namespace ANTLR2 {
         public override IValue VisitPredtype(gramParser.PredtypeContext context) {
             var type = Visit(context.type());
             var predicate = Visit(context.expr());
-            return ValueFactory.make(new Type(type.Get<Type>().RawTypeOf, predicate, context.expr().GetText()));
+            return ValueFactory.make(new Type(type, predicate, context.expr().GetText()));
         }
 
         public override IValue VisitListtype(gramParser.ListtypeContext context) {
@@ -164,7 +164,7 @@ namespace ANTLR2 {
 
         public override IValue VisitVariable_assignment(gramParser.Variable_assignmentContext context) {
             var varname = context.IDENTIFIER().GetText();
-            environment[context.IDENTIFIER().GetText()].Value = Visit(context.expr());
+            environment[varname].Value = Visit(context.expr());
             return environment[varname].Value;
         }
 
