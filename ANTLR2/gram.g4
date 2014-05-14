@@ -33,11 +33,11 @@ expr		: if						# expr_if
 			| expr op=(OR|AND) expr		# logicaloperator
 			| INEQ expr					# inequality
 			| INT						# int
+			| func						# expr_func
 			| variable					# expr_variable
 			| expr '('? expr ')'? 		# statement_func_call
 			| expr '[' expr ']'			# list_index
 			| '(' expr ')'				# parens
-			| func						# expr_func
 			| type						# expr_type
 			| 'var' binding '=' expr	# statement_assignment
 			| 'val' binding '=' expr	# statement_assignment_readonly

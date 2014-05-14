@@ -12,6 +12,8 @@ namespace ANTLR2.Tree {
 
         public IReadOnlyList<T> Values { get { return values.AsReadOnly();  } }
 
+        public IReadOnlyList<Tree<T>> Children { get { return nodes.AsReadOnly(); } }
+
         public Tree() {
             values = new List<T>();
         }

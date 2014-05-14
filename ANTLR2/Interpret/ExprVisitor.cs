@@ -1,4 +1,5 @@
 ﻿using ANTLR2.Interpret;
+using ANTLR2.Tree;
 using ANTLR2.Value;
 using System;
 using System.Collections.Generic;
@@ -116,10 +117,15 @@ namespace ANTLR2 {
 
         public override IValue VisitListtype(gramParser.ListtypeContext context) {
             var types = context.type().Select(t => Visit(t)).ToList();
+            var typeChecker = makeListTypeChecker(types);
+            return ValueFactory.make(new Type(ValueType.LIST, ValueFactory.make(typeChecker), context.GetText()));
+        }
+
+        public Func<IValue, IValue> makeListTypeChecker(IEnumerable<IValue> types) {
             Func<IValue, IValue> typeChecker = l => {
                 var list = l.Get<IEnumerable<IValue>>().ToList();
                 var index = 0;
-                foreach (var type in types){
+                foreach (var type in types) {
                     if (list.Count <= index || !type.Get<Type>().Check(list[index])) {
                         return ValueFactory.make(false);
                     }
@@ -127,7 +133,7 @@ namespace ANTLR2 {
                 }
                 return ValueFactory.make(list.Count == index);
             };
-            return ValueFactory.make(new Type(ValueType.LIST, ValueFactory.make(typeChecker), context.GetText()));
+            return typeChecker;
         }
 
         public override IValue VisitStatement_assignment(gramParser.Statement_assignmentContext context) {
@@ -180,12 +186,31 @@ namespace ANTLR2 {
         }
 
         public override IValue VisitFunc_literal(gramParser.Func_literalContext context) {
+            var explorer = new BindingExplorer(this);
+            var bindTree = explorer.Visit(context.binding());
+            var typeTree = bindTreeToTypeTree(bindTree);
             Func<IValue, IValue> func = x => {
+                var correctness = new TypeChecker(typeTree).Check(x);
+                if (!correctness) {
+                    throw new GramException("Type violation!");
+                }
                 var scope = newScope();
                 scope.setBindings(context.binding(), x);
                 return scope.Visit(context.expr());
             };
             return ValueFactory.make(func);
+        }
+
+        public IValue bindTreeToTypeTree(Tree<Binding> bindTree) {
+            if (bindTree.Values.Count > 1) {
+                return ValueFactory.make(bindTree.Values.Select(bind => ValueFactory.make(bind.Type)));
+            } else if (bindTree.Values.Count == 1) {
+                return bindTree.Values.Select(bind => ValueFactory.make(bind.Type)).Single();
+            } else if (bindTree.Children.Count > 0) {
+                return ValueFactory.make(bindTree.Children.Select(bind => bindTreeToTypeTree(bind)));
+            } else {
+                return ValueFactory.make();
+            }
         }
 
         public override IValue VisitBlockexpr(gramParser.BlockexprContext context) {
@@ -238,8 +263,10 @@ namespace ANTLR2 {
         }
 
         public IList<Binding> setBindings(gramParser.BindingContext context, IValue val){
-            var bindingExplorer = new BindingExplorer(this, val);
+            var bindingExplorer = new BindingAssigner(this, val);
             var bindings = bindingExplorer.Visit(context);
+            var typeTree = bindTreeToTypeTree(bindings);
+            var typeCheck = new TypeChecker(typeTree).Check(val);
             var binds = bindings.GetAllValues().ToList();
 
             foreach (var bind in binds) {

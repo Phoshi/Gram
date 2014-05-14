@@ -27,7 +27,7 @@ namespace ANTLR2 {
                 } else if (parent != null){
                     return parent[bindname];
                 } else {
-                    throw new GramException("No such variable in scope!");
+                    throw new GramException("No such variable in scope: " + bindname);
                 }
             }
             set {

@@ -82,7 +82,7 @@ namespace ANTLR2.Value {
         }
 
         public static IValue make(Func<IValue, IValue> val) {
-            return new Value(Type.Of(ValueType.FUNCTION), val);
+            return new FunctionValue(val);
         }
 
         public static IValue make(IEnumerable<IValue> val) {

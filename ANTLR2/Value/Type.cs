@@ -46,7 +46,7 @@ namespace ANTLR2 {
         }
 
         public bool Check(IValue val) {
-            return val.Type.RawTypeOf == RawTypeOf;// && Predicate.Operator("()", val) == ValueFactory.make(true);//Predicate.AsFunc(val).AsInt != 0;
+            return val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true));//Predicate.AsFunc(val).AsInt != 0;
         }
 
         public bool Check(Type type) {
