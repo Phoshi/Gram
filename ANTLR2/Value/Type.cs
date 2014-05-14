@@ -13,7 +13,7 @@ namespace ANTLR2 {
 
         public ValueType RawTypeOf { get; internal set; }
 
-        private IValue parentValue;
+        private Type parentValue;
 
         public IValue Predicate { get; internal set; }
         private static IValue nopPredicate = ValueFactory.make(x => ValueFactory.make(1));
@@ -23,6 +23,7 @@ namespace ANTLR2 {
         public Type(ValueType type) {
             RawTypeOf = type;
             Predicate = nopPredicate;
+            parentValue = null;
         }
 
         public Type(ValueType type, IValue predicate, string predicateDescription) {
@@ -36,7 +37,7 @@ namespace ANTLR2 {
         }
 
         public Type(IValue parent, IValue predicate, string predicateDescription) {
-            this.parentValue = parent;
+            this.parentValue = parent.Get<Type>();
             this.Predicate = predicate;
             this.predicateDescription = predicateDescription;
         }
@@ -46,7 +47,7 @@ namespace ANTLR2 {
         }
 
         public bool Check(IValue val) {
-            return val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true));
+            return (parentValue == null ? true : parentValue.Check(val)) && val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true));
         }
 
         public bool Check(Type type) {
@@ -63,7 +64,7 @@ namespace ANTLR2 {
                 return Check(otherType);
             }
 
-            return false;
+            return base.Equals(obj);
         }
 
         public override int GetHashCode() {
@@ -71,6 +72,9 @@ namespace ANTLR2 {
         }
 
         public static bool operator ==(Type a, Type b) {
+            if (ReferenceEquals(a, b)) {
+                return true;
+            }
             if (ReferenceEquals(a, null) || ReferenceEquals(b, null)) {
                 return false;
             }
