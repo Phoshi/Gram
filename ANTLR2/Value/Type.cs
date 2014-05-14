@@ -42,15 +42,15 @@ namespace ANTLR2 {
         }
 
         public override string ToString() {
-            return "Type: " + RawTypeOf + (Predicate == nopPredicate ? "" : "; Predicate: " + predicateDescription);
+            return RawTypeOf + (Predicate == nopPredicate ? "" : "<" + predicateDescription + ">");
         }
 
         public bool Check(IValue val) {
-            return val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true));//Predicate.AsFunc(val).AsInt != 0;
+            return val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true));
         }
 
         public bool Check(Type type) {
-            return type.RawTypeOf == RawTypeOf;// && type.Predicate == Predicate;
+            return RawTypeOf == ValueType.UNIT || (type.RawTypeOf == RawTypeOf && type.Predicate == Predicate);
         }
 
         public bool Check(ValueType type) {
