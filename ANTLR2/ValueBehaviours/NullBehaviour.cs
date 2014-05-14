@@ -10,7 +10,7 @@ namespace ANTLR2.ValueBehaviour {
             switch (op) {
                 case "==": return ValueFactory.make(0);
                 default:
-                    return operand1;
+                    throw new ArgumentException("No defined operators for " + operand1 + op + operand2);
             }
         }
 
