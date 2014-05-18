@@ -4,9 +4,9 @@ namespace ANTLR2.Value {
     interface IValue {
         IValue Operator(string op);
         IValue Operator(string op, IValue operand);
-        Type Type { get; }
+        IType Type { get; }
 
-        IValue Constrain(Type t);
+        IValue Constrain(Binding binding);
 
         T Get<T>();
     }

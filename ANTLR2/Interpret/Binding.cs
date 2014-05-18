@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ANTLR2 {
     class Binding {
         public string Name { get; internal set; }
-        public Type Type { get; internal set; }
+        public IType Type { get; internal set; }
 
         public bool ReadOnly { get; internal set; }
 
@@ -16,14 +16,14 @@ namespace ANTLR2 {
         public IValue Value { 
             get { return value; }
             set {
-                if (Type.Check(ValueType.UNIT)) {
+                if (Type.Check(ValueType.ANY)) {
                     Type = value.Type;
                 }
-                if (ReadOnly && !value.Type.Check(ValueType.UNIT)) {
+                if (ReadOnly && !value.Type.Check(ValueType.ANY)) {
                     throw new GramException("Cannot reassign 'val'!");
                 }
                 if (value.Type == Type || Type.Check(value)) {
-                    this.value = value.Constrain(Type);
+                    this.value = value.Constrain(this);
                 } else {
                     throw new GramException("Type violation!");
                 }
@@ -32,10 +32,10 @@ namespace ANTLR2 {
 
         public Binding(string name) {
             Name = name;
-            Type = Type.Of(ValueType.UNIT);
+            Type = new Type(ValueType.ANY);
         }
 
-        public Binding(string name, Type type) {
+        public Binding(string name, IType type) {
             Name = name;
             Type = type;
         }
@@ -46,7 +46,7 @@ namespace ANTLR2 {
             Value = val;
         }
 
-        public Binding(string name, Type type, IValue val) {
+        public Binding(string name, IType type, IValue val) {
             Name = name;
             Type = type;
             Value = val;

@@ -6,24 +6,29 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ANTLR2 {
-    class Type {
-        public static Type Of(ValueType rawType) {
+    class Type : ANTLR2.Value.IType {
+        public static IType Of(ValueType rawType) {
             return new Type(rawType);
         }
 
         public ValueType RawTypeOf { get; internal set; }
 
-        private Type parentValue;
+        private IType parentValue;
 
         public IValue Predicate { get; internal set; }
-        private static IValue nopPredicate = ValueFactory.make(x => ValueFactory.make(1));
+        public static IValue NoOpPredicate = ValueFactory.make(x => ValueFactory.make(1));
 
         private string predicateDescription = "";
 
         public Type(ValueType type) {
             RawTypeOf = type;
-            Predicate = nopPredicate;
+            Predicate = NoOpPredicate;
             parentValue = null;
+        }
+
+        public Type(IValue parent) {
+            this.parentValue = parent.Get<IType>();
+            Predicate = NoOpPredicate;
         }
 
         public Type(ValueType type, IValue predicate, string predicateDescription) {
@@ -37,30 +42,35 @@ namespace ANTLR2 {
         }
 
         public Type(IValue parent, IValue predicate, string predicateDescription) {
-            this.parentValue = parent.Get<Type>();
+            this.parentValue = parent.Get<IType>();
             this.Predicate = predicate;
             this.predicateDescription = predicateDescription;
         }
 
+        public String FriendlyName { get; set; }
+
         public override string ToString() {
-            return RawTypeOf + (Predicate == nopPredicate ? "" : "<" + predicateDescription + ">");
+            if (!String.IsNullOrWhiteSpace(FriendlyName)) {
+                return FriendlyName;
+            }
+            return RawTypeOf + (Predicate == NoOpPredicate ? "" : "<" + predicateDescription + ">");
         }
 
         public bool Check(IValue val) {
-            return (parentValue == null ? true : parentValue.Check(val)) && val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true));
+            return Check(val.Type) || ((parentValue == null ? true : parentValue.Check(val)) && val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true)));
         }
 
-        public bool Check(Type type) {
-            return RawTypeOf == ValueType.UNIT || (type.RawTypeOf == RawTypeOf && type.Predicate == Predicate);
+        public bool Check(IType type) {
+            return RawTypeOf == ValueType.ANY || (type.RawTypeOf == RawTypeOf && type.Predicate == Predicate);
         }
 
         public bool Check(ValueType type) {
-            return RawTypeOf == type;
+            return RawTypeOf == type || RawTypeOf == ValueType.ANY;
         }
 
         public override bool Equals(object obj) {
-            if (obj is Type) {
-                var otherType = obj as Type;
+            if (obj is IType) {
+                var otherType = obj as IType;
                 return Check(otherType);
             }
 

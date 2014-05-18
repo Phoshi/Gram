@@ -14,11 +14,11 @@ namespace ANTLR2.Interpret {
         }
 
         public bool Check(IValue value) {
-            if (typeTree.Type.Check(ValueType.TYPE) && typeTree.Get<Type>().Check(ValueType.UNIT)) {
+            if (typeTree.Type.Check(ValueType.TYPE) && typeTree.Get<IType>().Check(ValueType.ANY)) {
                 return true;
             }
             if (!value.Type.Check(ValueType.LIST) || !typeTree.Type.Check(ValueType.LIST)) {
-                return typeTree.Get<Type>().Check(value);
+                return typeTree.Get<IType>().Check(value);
             } else {
                 return typeTree.Get<IEnumerable<IValue>>().Zip(value.Get<IEnumerable<IValue>>(), (bindChildren, val) => new TypeChecker(bindChildren).Check(val)).Aggregate((one, two) => one && two);
             }

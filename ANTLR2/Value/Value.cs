@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace ANTLR2.Value {
     class Value : IValue {
-        public Type Type { get; set; } 
+        public IType Type { get; set; } 
 
         private readonly Object value;
 
-        public Value(Type type, Object val = null) {
-            if (type.RawTypeOf != ValueType.UNIT && val == null) {
+        public Value(IType type, Object val = null) {
+            if (type.RawTypeOf != ValueType.ANY && val == null) {
                 throw new ArgumentNullException();
             }
             value = val;
             Type = type;
         }
 
-        public Value(Type type, IValue val) {
+        public Value(IType type, IValue val) {
             Type = type;
             value = val.Get<object>();
         }
@@ -30,7 +30,7 @@ namespace ANTLR2.Value {
 
         public IEnumerable<IValue> AsList { get { return (IEnumerable<IValue>)value; } }
 
-        public Type AsType { get { return (Type)value; } }
+        public IType AsType { get { return (IType)value; } }
 
         public T Get<T>() {
             return (T)value;
@@ -44,8 +44,8 @@ namespace ANTLR2.Value {
             return ValueBehaviourFactory.GetBehaviour(this).UnaryOperator(this, op);
         }
 
-        public IValue Constrain(Type t) {
-            return new Value(t, this);
+        public IValue Constrain(Binding binding) {
+            return new Value(binding.Type, this);
         }
 
         public override bool Equals(object obj) {
@@ -64,44 +64,10 @@ namespace ANTLR2.Value {
             if (Type.RawTypeOf == ValueType.LIST) {
                 return "{" + string.Join("; ", (value as IEnumerable<IValue>).Select(x=>x.ToString())) + "}";
             }
-            if (Type.RawTypeOf == ValueType.UNIT) {
-                return "Unit";
+            if (Type.RawTypeOf == ValueType.ANY) {
+                return "Any";
             }
             return value.ToString();
         }
-    }
-
-    class ValueFactory {
-        public static IValue make(int val) {
-            return new Value(Type.Of(ValueType.INTEGER), val);
-        }
-
-        public static IValue make(bool val) {
-            return new Value(Type.Of(ValueType.INTEGER), val ? 1 : 0);
-        }
-
-        public static IValue make(Func<int, int> val) {
-            Func<IValue, IValue> func = f => { 
-                return ValueFactory.make(val(f.Get<int>())); 
-            };
-            return new Value(Type.Of(ValueType.FUNCTION), func);
-        }
-
-        public static IValue make(Func<IValue, IValue> val) {
-            return new FunctionValue(val);
-        }
-
-        public static IValue make(IEnumerable<IValue> val) {
-            return new Value(Type.Of(ValueType.LIST), val.ToList());
-        }
-
-        public static IValue make(Type val) {
-            return new Value(Type.Of(ValueType.TYPE), val);
-        }
-
-        public static IValue make() {
-            return new Value(Type.Of(ValueType.UNIT));
-        }
-
     }
 }

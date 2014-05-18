@@ -1,4 +1,5 @@
-﻿using ANTLR2.ValueBehaviour;
+﻿using ANTLR2.Interpret;
+using ANTLR2.ValueBehaviour;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,23 +9,54 @@ using System.Threading.Tasks;
 namespace ANTLR2.Value {
     class FunctionValue : IValue {
         private readonly Func<IValue, IValue> innerFunction;
+        private readonly IValue parameterType;
+        private readonly IValue returnType;
+
         public FunctionValue(Func<IValue, IValue> func) {
             this.innerFunction = func;
+            this.parameterType = ValueFactory.make(new Type(ValueType.ANY));
+            this.returnType = ValueFactory.make(new Type(ValueType.ANY));
+        }
+        public FunctionValue(Func<IValue, IValue> func, IValue parameterType) {
+            this.innerFunction = func;
+            this.parameterType = parameterType;
+            this.returnType = ValueFactory.make(new Type(ValueType.ANY));
+        }
+        public FunctionValue(Func<IValue, IValue> func, IValue parameterType, IValue returnType) {
+            this.innerFunction = func;
+            this.parameterType = parameterType;
+            this.returnType = returnType;
         }
         public IValue Operator(string op) {
             return ValueBehaviourFactory.GetBehaviour(this).UnaryOperator(this, op);
         }
 
         public IValue Operator(string op, IValue operand) {
+            if (op == "()") {
+                var parameterChecker = new TypeChecker(parameterType);
+                if (!parameterChecker.Check(operand)) {
+                    throw new GramException("Function parameter is invalid");
+                }
+                var result = ValueBehaviourFactory.GetBehaviour(this, operand).BinaryOperator(this, op, operand);
+                var resultChecker = new TypeChecker(returnType);
+                if (!resultChecker.Check(result)) {
+                    throw new GramException("Function result is invalid");
+                }
+                return new Binding("~function_result", returnType.Get<IType>(), result).Value;
+            }
             return ValueBehaviourFactory.GetBehaviour(this, operand).BinaryOperator(this, op, operand);
         }
 
-        public Type Type {
-            get { return Type.Of(ValueType.FUNCTION); }
+        public IType Type {
+            get { return new FunctionType(parameterType, returnType); }
             set { }
         }
 
-        public IValue Constrain(Type t) {
+        public IValue Constrain(Binding t) {
+            if (t.Type is FunctionType) {
+                var bindType = t.Type as FunctionType;
+                return new FunctionValue(innerFunction, bindType.Parameter, bindType.Return);
+            }
             return this;
         }
 
@@ -33,7 +65,7 @@ namespace ANTLR2.Value {
         }
 
         public override string ToString() {
-            return "Any=>Any";
+            return parameterType.ToString() + "=>" + returnType.ToString();
         }
     }
 }

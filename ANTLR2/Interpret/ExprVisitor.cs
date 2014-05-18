@@ -15,12 +15,11 @@ namespace ANTLR2 {
                     var t = x.Type;
                     return ValueFactory.make(t);
             })),
+            new Binding("Any", ValueFactory.make(Type.Of(ValueType.ANY))),
             new Binding("length", ValueFactory.make(x=>{
                 return ValueFactory.make(x.Get<IEnumerable<IValue>>().Count());
             })),
-            new Binding("int", ValueFactory.make(new Type(ValueType.INTEGER))),
-            new Binding("true", ValueFactory.make(1)),
-            new Binding("false", ValueFactory.make(0)),
+            new Binding("Int", ValueFactory.make(new Type(ValueType.INTEGER))),
             new Binding("DEBUG", ValueFactory.make(0)),
         };
 
@@ -35,7 +34,7 @@ namespace ANTLR2 {
         public ExprVisitor() {}
 
         public override IValue Visit(Antlr4.Runtime.Tree.IParseTree tree) {
-            if (environment["DEBUG"].Value == environment["true"].Value) {
+            if (environment["DEBUG"].Value.Equals(ValueFactory.make(true))) {
                 Console.WriteLine("Interpreting: " + tree.GetText());
                 Console.WriteLine("========================================================");
                 Console.WriteLine("In environment: " + environment);
@@ -74,23 +73,23 @@ namespace ANTLR2 {
             var left = Visit(context.expr(0));
             if (context.op.Type == gramParser.OR) {
                 if (left.Equals(ValueFactory.make(true))) {
-                    return environment["true"].Value;
+                    return ValueFactory.make(true);
                 } else if (Visit(context.expr(1)).Equals(ValueFactory.make(true))) {
-                        return environment["true"].Value;
+                    return ValueFactory.make(true);
                 } else {
-                    return environment["false"].Value;
+                    return ValueFactory.make(false);
                 }
             } else if (context.op.Type == gramParser.AND) {
                 if (left.Equals(ValueFactory.make(false))) {
-                    return environment["false"].Value;
+                    return ValueFactory.make(false);
                 } else if (Visit(context.expr(1)).Equals(ValueFactory.make(true))) {
-                    return environment["true"].Value;
+                    return ValueFactory.make(true);
                 } else {
-                    return environment["false"].Value;
+                    return ValueFactory.make(false);
                 }
             }
 
-            return environment["false"].Value;
+            return ValueFactory.make(false);
         }
 
         public override IValue VisitParens(gramParser.ParensContext context) {
@@ -106,7 +105,9 @@ namespace ANTLR2 {
         }
 
         public override IValue VisitFunctype(gramParser.FunctypeContext context) {
-            return ValueFactory.make(Type.Of(ValueType.FUNCTION));
+            var paramType = Visit(context.type(0));
+            var returnType = Visit(context.type(1));
+            return ValueFactory.make(new FunctionType(paramType, returnType));
         }
 
         public override IValue VisitPredtype(gramParser.PredtypeContext context) {
@@ -126,7 +127,7 @@ namespace ANTLR2 {
                 var list = l.Get<IEnumerable<IValue>>().ToList();
                 var index = 0;
                 foreach (var type in types) {
-                    if (list.Count <= index || !type.Get<Type>().Check(list[index])) {
+                    if (list.Count <= index || !type.Get<IType>().Check(list[index])) {
                         return ValueFactory.make(false);
                     }
                     index = index + 1;
@@ -198,7 +199,26 @@ namespace ANTLR2 {
                 scope.setBindings(context.binding(), x);
                 return scope.Visit(context.expr());
             };
-            return ValueFactory.make(func);
+            return ValueFactory.make(func, typeTree);
+        }
+
+        public override IValue VisitFunc_literal_typed(gramParser.Func_literal_typedContext context){
+            var explorer = new BindingExplorer(this);
+            var bindTree = explorer.Visit(context.binding());
+            var typeTree = bindTreeToTypeTree(bindTree);
+
+            var resultType = Visit(context.type());
+
+            Func<IValue, IValue> func = x => {
+                var correctness = new TypeChecker(typeTree).Check(x);
+                if (!correctness) {
+                    throw new GramException("Type violation!");
+                }
+                var scope = newScope();
+                scope.setBindings(context.binding(), x);
+                return scope.Visit(context.expr());
+            };
+            return ValueFactory.make(func, typeTree, resultType);
         }
 
         public IValue bindTreeToTypeTree(Tree<Binding> bindTree) {

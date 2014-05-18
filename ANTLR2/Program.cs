@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 
 namespace ANTLR2 {
 	class Program {
-		public static string prelude = @"   val bool = int<bool=> bool == 0 || bool == 1>;
-											val range = p:{int;int}=> range'(p+{p[0]});
-											val range' = {current:int; end:int; rangeList} => 
+		public static string prelude = @"   val Bool = Int<bool=> bool == 0 || bool == 1>;
+											val true: Bool = 1;
+											val false: Bool = 0;
+											val range = p:{Int;Int}=> range'(p+{p[0]});
+											val range' = {current:Int; end:Int; rangeList} => 
 												if (current == end) 
 													rangeList 
 												else 
@@ -31,7 +33,7 @@ namespace ANTLR2 {
 
 											val map = {f; iter} => for(i:iter) f(i);
 
-											val filter = args=>filter'(args + {});
+											val filter: {Any->Any; Any} -> Any = args=>filter'(args + {});
 
 											val filter' = {f; iter; current} => 
 												if (length(iter) == 0) 
@@ -80,8 +82,8 @@ namespace ANTLR2 {
 				Console.Write("> ");
 				try {
 					IValue result = visitor.Visit(tree);
-					if (result.Type.RawTypeOf != ValueType.UNIT) {
-						Console.WriteLine(result);
+					if (result.Type.RawTypeOf != ValueType.ANY) {
+						Console.WriteLine(result + ": " + result.Type);
 					}
 					Console.WriteLine();
 				} catch (GramException ex) {

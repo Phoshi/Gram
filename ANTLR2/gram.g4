@@ -53,7 +53,7 @@ binding		: variable						#binding_single
 			;
 
 type		: IDENTIFIER					#rawtype
-			| type '=>' type				#functype
+			| type '->' type				#functype
 			| type '<' expr '>'				#predtype
 			| '{' (type NL)* type? '}'		#listtype
 			;
@@ -67,7 +67,8 @@ for			: 'for' '(' binding ':' expr ')' expr
 while		: 'while' '(' expr ')' expr
 			;
 
-func		: binding '=>' expr		# func_literal
+func		: binding '->' type '=>' expr		# func_literal_typed
+			| binding '=>' expr					# func_literal
 			;
 
 /*

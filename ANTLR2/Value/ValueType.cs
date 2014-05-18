@@ -9,7 +9,7 @@ namespace ANTLR2 {
         INTEGER,
         FUNCTION,
         LIST,
-        UNIT,
+        ANY,
         TYPE,
     }
 }
