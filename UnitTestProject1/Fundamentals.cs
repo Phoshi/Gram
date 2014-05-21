@@ -146,6 +146,20 @@ namespace GramTests {
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void InvalidListIndexList() {
+            var i = new GramInterpreter();
+            i.Execute("5[1];");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void InvalidListIndexIndex() {
+            var i = new GramInterpreter();
+            i.Execute("{1;2}[Int];");
+        }
+
+        [TestMethod]
         public void DestructuringAssignment() {
             var i = new GramInterpreter();
             i.Execute("var {a; b; {c; {d; e}; {f; g}}} = {1; 2; {3; {4; 5}; {6; 7}}};");
@@ -159,6 +173,24 @@ namespace GramTests {
                 {'g', 7},
             };
             Assert.IsTrue(resultMap.All(kvP => i.GetVariable(kvP.Key.ToString()).Get<int>() == kvP.Value), "Destructuring assignment doesn't work");
+        }
+
+        [TestMethod]
+        public void TypeLiteral() {
+            var i = new GramInterpreter();
+            Assert.IsTrue(i.Execute("Int<i=>i==0>;").Type.Check(ANTLR2.ValueType.TYPE), "Function literals work");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void PredicatedType() {
+            var i = new GramInterpreter();
+            try {
+                i.Execute("var x: Int<x=>x>0> = 1;");
+            } catch (ANTLR2.TypeException) {
+                Assert.Fail("Initial assignment had invalid type");
+            }
+            i.Execute("x = -2");
         }
     }
 }

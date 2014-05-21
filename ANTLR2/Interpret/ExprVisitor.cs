@@ -247,7 +247,13 @@ namespace ANTLR2 {
 
         public override IValue VisitList_index(gramParser.List_indexContext context) {
             var list = Visit(context.expr(0));
+            if (!list.Type.Check(ValueType.LIST)) {
+                throw new TypeException("Indexing must be done on list type!");
+            }
             var index = Visit(context.expr(1));
+            if (!index.Type.Check(ValueType.INTEGER)) {
+                throw new TypeException("List index must be integral!");
+            }
 
             return list.Operator("[]", index);
         }
