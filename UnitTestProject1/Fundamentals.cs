@@ -60,11 +60,25 @@ namespace GramTests {
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void InvalidIfPredicateType() {
+            var i = new GramInterpreter();
+            i.Execute("if (Int) 5");
+        }
+
+        [TestMethod]
         public void For() {
             var i = new GramInterpreter();
             i.Execute("var total = 0;");
             i.Execute("for (num : {0;1;2;3}) total = total + num;");
             Assert.AreEqual(6, i.GetVariable("total").Get<int>(), "For loop not iterating correctly");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void InvalidForIterableType() {
+            var i = new GramInterpreter();
+            i.Execute("for (x: 5) 5");
         }
 
         [TestMethod]
@@ -74,6 +88,13 @@ namespace GramTests {
             i.Execute("var count = 3;");
             i.Execute("while (count > 0) {total = total + count; count = count - 1;}");
             Assert.AreEqual(6, i.GetVariable("total").Get<int>(), "While loop not iterating correctly.");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void InvalidWhilePredicateType() {
+            var i = new GramInterpreter();
+            i.Execute("while (Int) 3;");
         }
 
         [TestMethod]

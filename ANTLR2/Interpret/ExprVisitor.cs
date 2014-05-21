@@ -254,6 +254,9 @@ namespace ANTLR2 {
 
         public override IValue VisitIf(gramParser.IfContext context) {
             var cond = Visit(context.expr(0));
+            if (!cond.Type.Check(ValueType.INTEGER)) {
+                throw new TypeException("If condition must be integral");
+            }
             if (cond.Equals(ValueFactory.make(true))) {
                 return Visit(context.expr(1));
             } else {
@@ -266,6 +269,9 @@ namespace ANTLR2 {
 
         public override IValue VisitFor(gramParser.ForContext context) {
             var iterable = Visit(context.expr(0));
+            if (!iterable.Type.Check(ValueType.LIST)) {
+                throw new TypeException("For iterable must be collection");
+            }
 
             var results = new List<IValue>();
             foreach (var item in iterable.Get<IEnumerable<IValue>>()){
@@ -278,6 +284,9 @@ namespace ANTLR2 {
 
         public override IValue VisitWhile(gramParser.WhileContext context) {
             var conditional = Visit(context.expr(0));
+            if (!conditional.Type.Check(ValueType.INTEGER)) {
+                throw new TypeException("While condition must be integral.");
+            }
 
             var results = new List<IValue>();
             while (conditional.Equals(ValueFactory.make(true))) {
