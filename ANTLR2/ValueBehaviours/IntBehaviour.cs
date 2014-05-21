@@ -27,6 +27,8 @@ namespace ANTLR2.ValueBehaviour {
             switch (op) {
                 case "!":
                     return ValueFactory.make(operand1 != ValueFactory.make(true));
+                case "-":
+                    return ValueFactory.make(-operand1.Get<int>());
             }
 
             throw new InvalidOperationException();

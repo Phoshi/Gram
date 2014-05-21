@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ANTLR2 {
-    class Binding {
+    public class Binding {
         public string Name { get; internal set; }
         public IType Type { get; internal set; }
 
@@ -25,7 +25,8 @@ namespace ANTLR2 {
                 if (value.Type == Type || Type.Check(value)) {
                     this.value = value.Constrain(this);
                 } else {
-                    throw new GramException("Type violation!");
+                    this.value = value.Constrain(this);
+                    throw new TypeException(Name + " has type " + Type.ToString());
                 }
             }
         }

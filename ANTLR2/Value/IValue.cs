@@ -1,7 +1,7 @@
 ﻿using ANTLR2.ValueBehaviour;
 using System;
 namespace ANTLR2.Value {
-    interface IValue {
+    public interface IValue {
         IValue Operator(string op);
         IValue Operator(string op, IValue operand);
         IType Type { get; }

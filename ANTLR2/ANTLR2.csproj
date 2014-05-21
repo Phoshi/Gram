@@ -57,8 +57,10 @@
       <DependentUpon>gram.g4</DependentUpon>
     </Compile>
     <Compile Include="GramException.cs" />
+    <Compile Include="Interpret\GramInterpreter.cs" />
     <Compile Include="Interpret\TypeChecker.cs" />
     <Compile Include="Tree\Tree.cs" />
+    <Compile Include="TypeException.cs" />
     <Compile Include="ValueBehaviours\FuncBehaviour.cs" />
     <Compile Include="ValueBehaviours\IntBehaviour.cs" />
     <Compile Include="ValueBehaviours\ListBehaviour.cs" />

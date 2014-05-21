@@ -31,8 +31,8 @@ expr		: if						# expr_if
 			| expr op=(ADD|SUB) expr	# AddSub
 			| expr op=(EQ|LT|GT) expr	# equality
 			| expr op=(OR|AND) expr		# logicaloperator
+			| SUB expr					# unary_operators
 			| INEQ expr					# inequality
-			| INT						# int
 			| func						# expr_func
 			| variable					# expr_variable
 			| expr '('? expr ')'? 		# statement_func_call
@@ -42,6 +42,7 @@ expr		: if						# expr_if
 			| 'var' binding '=' expr	# statement_assignment
 			| 'val' binding '=' expr	# statement_assignment_readonly
 			| IDENTIFIER '=' expr		# variable_assignment
+			| INT						# int
 			;
 
 variable	: IDENTIFIER
@@ -75,7 +76,7 @@ func		: binding '->' type '=>' expr		# func_literal_typed
  * Lexer Rules
  */
 
- INT : '-'?[0-9]+;
+ INT : [0-9]+;
  MUL : '*';
  DIV : '/';
  ADD : '+';

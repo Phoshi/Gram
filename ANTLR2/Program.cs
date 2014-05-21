@@ -1,4 +1,5 @@
-﻿using ANTLR2.Value;
+﻿using ANTLR2.Interpret;
+using ANTLR2.Value;
 using Antlr4.Runtime;
 using System;
 using System.Collections.Generic;
@@ -59,12 +60,8 @@ namespace ANTLR2 {
 															{f{iter[0];iter[1]}}; 
 															tail(tail(iter))  }};";
 		static void Main(string[] args){
-			var visitor = new ExprVisitor();
-			var preludeInput = new AntlrInputStream(prelude);
-			var preludeLexer = new gramLexer(preludeInput);
-			var preludeTokens = new CommonTokenStream(preludeLexer);
-			var preludeParser = new gramParser(preludeTokens);
-			visitor.Visit(preludeParser.prog());
+			var interpreter = new GramInterpreter();
+			interpreter.Execute(prelude);
 
 			while (true) {
 				Console.Write("$ ");
@@ -73,21 +70,16 @@ namespace ANTLR2 {
 				while (text.LastOrDefault() != ';') {
 					text += input.ReadLine();
 				}
-				var antlrStream = new AntlrInputStream(text);
-				var lexer = new gramLexer(antlrStream);
-				var tokens = new CommonTokenStream(lexer);
-				var parser = new gramParser(tokens);
-				var tree = parser.prog();
-				Console.WriteLine("| " + tree.ToStringTree(parser));
+				Console.WriteLine("| " + interpreter.GetParseTree(text));
 				Console.Write("> ");
 				try {
-					IValue result = visitor.Visit(tree);
+					IValue result = interpreter.Execute(text);
 					if (result.Type.RawTypeOf != ValueType.ANY) {
 						Console.WriteLine(result + ": " + result.Type);
 					}
 					Console.WriteLine();
 				} catch (GramException ex) {
-					Console.WriteLine(ex.Message);
+					Console.WriteLine(ex.GetType().FullName + ": " + ex.Message);
 				} catch (Exception ex) {
 					Console.WriteLine("Exception at runtime: " + ex.ToString());
 				}

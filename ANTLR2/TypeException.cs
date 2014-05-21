@@ -5,11 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ANTLR2 {
-    public enum ValueType {
-        INTEGER,
-        FUNCTION,
-        LIST,
-        ANY,
-        TYPE,
+    public class TypeException : GramException {
+        public TypeException(string message) : base(message) { }
     }
 }

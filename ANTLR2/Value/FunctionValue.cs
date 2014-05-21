@@ -35,14 +35,14 @@ namespace ANTLR2.Value {
             if (op == "()") {
                 var parameterChecker = new TypeChecker(parameterType);
                 if (!parameterChecker.Check(operand)) {
-                    throw new GramException("Function parameter is invalid");
+                    throw new TypeException("Function parameter is invalid");
                 }
                 var result = ValueBehaviourFactory.GetBehaviour(this, operand).BinaryOperator(this, op, operand);
                 var resultChecker = new TypeChecker(returnType);
                 if (!resultChecker.Check(result)) {
-                    throw new GramException("Function result is invalid");
+                    throw new TypeException("Function result is invalid");
                 }
-                return new Binding("~function_result", returnType.Get<IType>(), result).Value;
+                return new Binding(result.ToString(), returnType.Get<IType>(), result).Value;
             }
             return ValueBehaviourFactory.GetBehaviour(this, operand).BinaryOperator(this, op, operand);
         }

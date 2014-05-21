@@ -1,6 +1,7 @@
 ﻿using ANTLR2.Interpret;
 using ANTLR2.Tree;
 using ANTLR2.Value;
+using ANTLR2.ValueBehaviour;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace ANTLR2 {
             new Binding("Int", ValueFactory.make(new Type(ValueType.INTEGER))),
             new Binding("DEBUG", ValueFactory.make(0)),
         };
+
+        public Environment Environment { get { return environment; } }
 
         private ExprVisitor newScope() {
             return new ExprVisitor(environment.GetChildEnvironment());
@@ -52,6 +55,11 @@ namespace ANTLR2 {
 
         public override IValue VisitInt(gramParser.IntContext context) {
             return ValueFactory.make(int.Parse(context.INT().GetText()));
+        }
+
+        public override IValue VisitUnary_operators(gramParser.Unary_operatorsContext context) {
+            var result = Visit(context.expr());
+            return ValueBehaviourFactory.GetBehaviour(result).UnaryOperator(result, context.SUB().GetText());
         }
 
         public override IValue VisitAddSub(gramParser.AddSubContext context) {
@@ -193,7 +201,7 @@ namespace ANTLR2 {
             Func<IValue, IValue> func = x => {
                 var correctness = new TypeChecker(typeTree).Check(x);
                 if (!correctness) {
-                    throw new GramException("Type violation!");
+                    throw new TypeException("Type violation!");
                 }
                 var scope = newScope();
                 scope.setBindings(context.binding(), x);
@@ -212,7 +220,7 @@ namespace ANTLR2 {
             Func<IValue, IValue> func = x => {
                 var correctness = new TypeChecker(typeTree).Check(x);
                 if (!correctness) {
-                    throw new GramException("Type violation!");
+                    throw new TypeException("Type violation!");
                 }
                 var scope = newScope();
                 scope.setBindings(context.binding(), x);
