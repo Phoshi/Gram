@@ -17,7 +17,11 @@ namespace ANTLR2.Interpret {
             var name = context.IDENTIFIER().GetText();
             if (context.type() != null) {
                 var type = interpreter.Visit(context.type());
-                return new Tree<Binding>(new Binding(name, type.Get<IType>()));
+                if (type.Type.Check(ValueType.TYPE)) {
+                    return new Tree<Binding>(new Binding(name, type.Get<IType>()));
+                } else if (type.Type.Check(ValueType.LIST)) {
+                    return new Tree<Binding>(new Binding(name, new ListType(type.Get<IEnumerable<IValue>>(), context.type().GetText())));
+                }
             }
 
             return new Tree<Binding>(new Binding(name));

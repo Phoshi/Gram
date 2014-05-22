@@ -73,6 +73,7 @@
     <Compile Include="Value\FunctionValue.cs" />
     <Compile Include="Value\IType.cs" />
     <Compile Include="Value\IValue.cs" />
+    <Compile Include="Value\ListType.cs" />
     <Compile Include="Value\Type.cs" />
     <Compile Include="Value\TypeValue.cs" />
     <Compile Include="Value\Value.cs" />

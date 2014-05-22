@@ -192,5 +192,12 @@ namespace GramTests {
             }
             i.Execute("x = -2");
         }
+
+        [TestMethod]
+        public void ListAsType() {
+            var i = new GramInterpreter();
+            i.Execute("val Rect = {{Int; Int}; {Int; Int}};");
+            i.Execute("val r: Rect = {{0;0}; {10;10}};");
+        }
     }
 }

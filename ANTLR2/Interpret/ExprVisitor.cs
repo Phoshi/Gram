@@ -126,23 +126,7 @@ namespace ANTLR2 {
 
         public override IValue VisitListtype(gramParser.ListtypeContext context) {
             var types = context.type().Select(t => Visit(t)).ToList();
-            var typeChecker = makeListTypeChecker(types);
-            return ValueFactory.make(new Type(ValueType.LIST, ValueFactory.make(typeChecker), context.GetText()));
-        }
-
-        public Func<IValue, IValue> makeListTypeChecker(IEnumerable<IValue> types) {
-            Func<IValue, IValue> typeChecker = l => {
-                var list = l.Get<IEnumerable<IValue>>().ToList();
-                var index = 0;
-                foreach (var type in types) {
-                    if (list.Count <= index || !type.Get<IType>().Check(list[index])) {
-                        return ValueFactory.make(false);
-                    }
-                    index = index + 1;
-                }
-                return ValueFactory.make(list.Count == index);
-            };
-            return typeChecker;
+            return ValueFactory.make(new ListType(types, context.GetText()));
         }
 
         public override IValue VisitStatement_assignment(gramParser.Statement_assignmentContext context) {
