@@ -41,6 +41,18 @@ namespace GramTests {
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void ListType() {
+            var interpreter = new GramInterpreter();
+            try {
+                interpreter.Execute("var x: {Int; Int} = {0;1};");
+            } catch (ANTLR2.TypeException) {
+                Assert.Fail("Initial assignment failed");
+            }
+            interpreter.Execute("x = {Int; Int};");
+        }
+
+        [TestMethod]
         public void Arithmetic() {
             var i = new GramInterpreter();
             Assert.AreEqual(4, i.Execute("2+2;").Get<int>(), "Addition is broken");
