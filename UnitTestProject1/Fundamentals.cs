@@ -211,5 +211,29 @@ namespace GramTests {
             i.Execute("val Rect = {{Int; Int}; {Int; Int}};");
             i.Execute("val r: Rect = {{0;0}; {10;10}};");
         }
+
+        [TestMethod]
+        public void FunctionType() {
+            var i = new GramInterpreter();
+            i.Execute("var f: Int->Int = x=>x;");
+            Assert.AreEqual(5, i.Execute("f 5").Get<int>(), "Base types not working");
+        }
+
+        [TestMethod]
+        public void FunctionDestrucuringType() {
+            var i = new GramInterpreter();
+            i.Execute("var Rect = {Int; Int; Int; Int};");
+            i.Execute("var mkSquare: {Int; Int; Int}->Rect = {x: Int; y: Int; lengths: Int}=>{x;y;lengths;lengths};");
+            Assert.AreEqual(5, i.Execute("mkSquare({0;0;5})[3];").Get<int>());
+        }
+
+        [TestMethod]
+        public void FunctionLateType() {
+            var i = new GramInterpreter();
+            i.Execute("var Rect = {Int; Int; Int; Int};");
+            i.Execute("var mkSquare = {x: Int; y: Int; length}=>{x;y;length;length};");
+            Assert.AreEqual(5, i.Execute("mkSquare({0;0;5})[3];").Get<int>());
+        }
+
     }
 }

@@ -12,9 +12,21 @@ namespace ANTLR2.Value {
         private IType parentValue;
         private String friendlyName;
 
+        private IValue creationList;
+
         public ListType(IEnumerable<IValue> types, String description) {
             this.predicate = ValueFactory.make(makeListTypeChecker(types));
             this.friendlyName = description;
+            this.creationList = ValueFactory.make(types);
+        }
+
+        public ListType(IValue types, String description) {
+            if (!types.Type.Check(ValueType.LIST)) {
+                throw new TypeException("List type must be actually a list!");
+            }
+            this.predicate = ValueFactory.make(makeListTypeChecker(types.Get<IEnumerable<IValue>>()));
+            this.friendlyName = description;
+            this.creationList = types;
         }
 
         private Func<IValue, IValue> makeListTypeChecker(IEnumerable<IValue> types) {
@@ -26,6 +38,10 @@ namespace ANTLR2.Value {
         }
 
         public bool Check(IType type) {
+            if (type is ListType) {
+                var otherList = type as ListType;
+                return creationList.Operator("==", otherList.creationList).Get<int>() == 1;
+            }
             return RawTypeOf == ValueType.ANY || (type.RawTypeOf == RawTypeOf && type.Predicate == Predicate);            
         }
 

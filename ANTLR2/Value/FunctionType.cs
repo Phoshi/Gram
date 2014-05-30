@@ -52,8 +52,10 @@ namespace ANTLR2.Value {
             if (obj is FunctionType) {
                 var funcType = obj as FunctionType;
 
-                var paramMatches = ret == funcType.ret || ret.Get<IType>().Check(ValueType.ANY) || funcType.ret.Get<IType>().Check(ValueType.ANY);
-                var returnMatches = ret == funcType.ret || ret.Get<IType>().Check(ValueType.ANY) || funcType.ret.Get<IType>().Check(ValueType.ANY);
+                //var paramMatches = ret == funcType.ret || ret.Get<IType>().Check(ValueType.ANY) || funcType.ret.Get<IType>().Check(ValueType.ANY);
+                //var returnMatches = ret == funcType.ret || ret.Get<IType>().Check(ValueType.ANY) || funcType.ret.Get<IType>().Check(ValueType.ANY);
+                var paramMatches = new TypeChecker(param, true).Check(funcType.param);
+                var returnMatches = new TypeChecker(param, true).Check(funcType.param);
                 return paramMatches && returnMatches;
             }
             return base.Equals(obj);

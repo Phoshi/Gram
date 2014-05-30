@@ -42,7 +42,15 @@ namespace ANTLR2.Value {
                 if (!resultChecker.Check(result)) {
                     throw new TypeException("Function result is invalid");
                 }
-                return new Binding(result.ToString(), returnType.Get<IType>(), result).Value;
+                IType type;
+                if (returnType.Type.Check(ValueType.TYPE)) {
+                    type = returnType.Get<IType>();
+                } else if (returnType.Type.Check(ValueType.LIST)) {
+                    type = new ListType(returnType, returnType.ToString());
+                } else {
+                    throw new TypeException("Function return value invalid!");
+                }
+                return new Binding(result.ToString(), type, result).Value;
             }
             return ValueBehaviourFactory.GetBehaviour(this, operand).BinaryOperator(this, op, operand);
         }

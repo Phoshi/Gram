@@ -8,17 +8,20 @@ namespace ANTLR2.ValueBehaviour {
     class ListBehaviour : ValueBehaviour {
         public IValue BinaryOperator(IValue operand1, string op, IValue operand2) {
             switch (op) {
-                case "+":
+                case "+": {
                     var list = new List<IValue>(operand1.Get<IEnumerable<IValue>>());
                     list.Add(operand2);
                     return ValueFactory.make(list);
-                case "==":
-                    if (operand1.Get<IEnumerable<IValue>>().Count() != operand2.Get<IEnumerable<IValue>>().Count()) {
-                        return ValueFactory.make(0);
                     }
-                    var areSame = operand1.Get<IEnumerable<IValue>>().Intersect(operand2.Get<IEnumerable<IValue>>()).Count() 
-                        == operand1.Get<IEnumerable<IValue>>().Count();
-                    return ValueFactory.make(areSame ? 1 : 0);
+                case "==": {
+                    var list = new List<IValue>(operand1.Get<IEnumerable<IValue>>());
+                    var otherList = new List<IValue>(operand1.Get<IEnumerable<IValue>>());
+                    if (list.Count() != otherList.Count()) {
+                        return ValueFactory.make(false);
+                    }
+                    var results = list.Zip(otherList, (item, otherItem) => item.Operator("==", otherItem));
+                    return ValueFactory.make(results.All(r => r.Get<int>() == 1));
+                    }
             }
 
             throw new InvalidOperationException();

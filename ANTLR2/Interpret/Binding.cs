@@ -25,7 +25,6 @@ namespace ANTLR2 {
                 if (value.Type == Type || Type.Check(value)) {
                     this.value = value.Constrain(this);
                 } else {
-                    this.value = value.Constrain(this);
                     throw new TypeException(Name + " has type " + Type.ToString());
                 }
             }
