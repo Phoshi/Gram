@@ -24,10 +24,13 @@ namespace ANTLR2.Interpret {
             }
             if (!value.Type.Check(ValueType.LIST) || !typeTree.Type.Check(ValueType.LIST)) {
                 if (compareAsType) {
+                    var type = typeTree.Type.Check(ValueType.LIST) 
+                        ? ValueFactory.make(new ListType(typeTree, typeTree.ToString())) 
+                        : typeTree;
                     if (value.Type.Check(ValueType.LIST)) {
                         return typeTree.Get<IType>().Check(new ListType(value, value.ToString()));
                     }
-                    return typeTree.Get<IType>().Check(value.Get<IType>());
+                    return type.Get<IType>().Check(value.Get<IType>());
                 }
                 return typeTree.Get<IType>().Check(value);
 

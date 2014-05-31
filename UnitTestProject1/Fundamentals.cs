@@ -235,5 +235,13 @@ namespace GramTests {
             Assert.AreEqual(5, i.Execute("mkSquare({0;0;5})[3];").Get<int>());
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
+        public void FailedFunctionType() {
+            var i = new GramInterpreter();
+            i.Execute("var Rect = {Int; Int; Int; Int};");
+            i.Execute("var embiggen: Rect->Rect = r:Rect->Int=>3;");
+        }
+
     }
 }
