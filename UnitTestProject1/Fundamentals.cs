@@ -243,5 +243,12 @@ namespace GramTests {
             i.Execute("var embiggen: Rect->Rect = r:Rect->Int=>3;");
         }
 
+        [TestMethod]
+        public void Comment() {
+            var i = new GramInterpreter();
+            i.Execute("var x = 0; #{set x to 5}# x = 5;");
+            Assert.AreEqual(5, i.GetVariable("x").Get<int>());
+        }
+
     }
 }

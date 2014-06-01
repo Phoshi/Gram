@@ -90,7 +90,7 @@ func		: binding '->' type '=>' expr		# func_literal_typed
  IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_']*;
 
 WS
-	:	(' ' | '\r' | '\n' | '\t') -> channel(HIDDEN)
+	:	('#{' .* '}#' | ' ' | '\r' | '\n' | '\t') -> channel(HIDDEN)
 	;
 
 NL : ';'+;
