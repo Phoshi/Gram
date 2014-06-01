@@ -250,5 +250,15 @@ namespace GramTests {
             Assert.AreEqual(5, i.GetVariable("x").Get<int>());
         }
 
+        [TestMethod]
+        public void TypeInstantiation() {
+            var i = new GramInterpreter();
+            i.Execute("var x = Int(5);");
+            Assert.AreEqual(5, i.GetVariable("x").Get<int>());
+
+            i.Execute("var Rect = {Int; Int; Int; Int};");
+            i.Execute("var box: Rect = Rect{0; 0; 10; 10};");
+        }
+
     }
 }

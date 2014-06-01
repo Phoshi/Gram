@@ -19,7 +19,7 @@ namespace ANTLR2.ValueBehaviour {
                 return new ListBehaviour();
             } else if (val.Type.RawTypeOf == ValueType.FUNCTION){
                 return new FuncBehaviour();
-            } else if (val.Type.Check(ValueType.TYPE) && val2.Type.Check(ValueType.TYPE)){
+            } else if (val.Type.Check(ValueType.TYPE)){
                 return new TypeBehaviour();
             } else {
                 return new NullBehaviour();

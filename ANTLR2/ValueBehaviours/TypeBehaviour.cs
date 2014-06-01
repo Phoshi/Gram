@@ -10,6 +10,9 @@ namespace ANTLR2.ValueBehaviour {
         public Value.IValue BinaryOperator(Value.IValue operand1, string op, Value.IValue operand2) {
             if (op == "==") {
                 return ValueFactory.make(operand1.Get<IType>().Check(operand2.Get<IType>()));
+            } else if (op == "()") {
+                var type = operand1.Get<IType>();
+                return new Value.Value(type, operand2);
             }
             throw new NotImplementedException();
         }

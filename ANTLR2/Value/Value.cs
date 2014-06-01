@@ -20,6 +20,9 @@ namespace ANTLR2.Value {
         }
 
         public Value(IType type, IValue val) {
+            if (!type.Check(val)) {
+                throw new TypeException("Attempted to create value with mismatched type!");
+            }
             Type = type;
             value = val.Get<object>();
         }

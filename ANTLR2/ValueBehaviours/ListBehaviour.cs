@@ -22,6 +22,9 @@ namespace ANTLR2.ValueBehaviour {
                     var results = list.Zip(otherList, (item, otherItem) => item.Operator("==", otherItem));
                     return ValueFactory.make(results.All(r => r.Get<int>() == 1));
                     }
+                case "()": {
+                        return new Value.Value(new ListType(operand1, operand1.ToString()), operand2);
+                    }
             }
 
             throw new InvalidOperationException();
