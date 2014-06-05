@@ -261,9 +261,11 @@ namespace GramTests {
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ANTLR2.TypeException))]
         public void IncorrectTypeInstantiation() {
             var i = new GramInterpreter();
-            //i.Execute
+            i.Execute("var Rect = {Int; Int; Int; Int};");
+            i.Execute("var box: Rect = Rect{0; 0; 10};");
         }
 
         [TestMethod]
