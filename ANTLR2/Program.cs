@@ -13,12 +13,12 @@ namespace ANTLR2 {
 		public static string prelude = @"   val Bool = Int<bool=> bool == 0 || bool == 1>;
 											val true: Bool = 1;
 											val false: Bool = 0;
-											val range = p:{Int;Int}=> range'(p+{p[0]});
-											val range' = {current:Int; end:Int; rangeList} => 
-												if (current == end) 
-													rangeList 
-												else 
-													range'({current + 1; end; rangeList + (current+1)});
+											val range = let val range' = {current:Int; end:Int; rangeList} => 
+													if (current == end) 
+														rangeList 
+													else 
+														range'({current + 1; end; rangeList + (current+1)})
+												in p:{Int;Int} => range'(p+{p[0]});
 
 											var head = list=>list[0];
 
@@ -34,15 +34,14 @@ namespace ANTLR2 {
 
 											val map = {f; iter} => for(i:iter) f(i);
 
-											val filter: {Any->Any; Any} -> Any = args=>filter'(args + {});
-
-											val filter' = {f; iter; current} => 
-												if (length(iter) == 0) 
-													current 
-												else if (f(head(iter))) 
-													filter'{f; tail iter; current + (head(iter))} 
-												else 
-													filter'{f; tail iter; current};
+											val filter: {Any->Any; Any} -> Any = let val filter' = {f; iter; current} => 
+													if (length(iter) == 0) 
+														current 
+													else if (f(head(iter))) 
+														filter'{f; tail iter; current + (head(iter))} 
+													else 
+														filter'{f; tail iter; current}
+												in args=>filter'(args + {});
 
 											val listConcat = {list1;list2}=>{
 												var total = list1;
