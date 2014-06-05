@@ -65,8 +65,9 @@ namespace ANTLR2 {
 			while (true) {
 				Console.Write("$ ");
 				var input = new StreamReader(Console.OpenStandardInput());
-				string text = "";
+				string text = input.ReadLine();
 				while (text.LastOrDefault() != ';') {
+                    Console.Write("...\t");
 					text += input.ReadLine();
 				}
 				Console.WriteLine("| " + interpreter.GetParseTree(text));
