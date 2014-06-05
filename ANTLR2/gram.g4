@@ -38,7 +38,10 @@ expr		: if						# expr_if
 			| expr '('? expr ')'? 		# statement_func_call
 			| expr '[' expr ']'			# list_index
 			| '(' expr ')'				# parens
-			| type						# expr_type
+			| expr '::' IDENTIFIER		# module_dereference
+			| 'module' expr				# module_literal
+			| expr '->' expr			#functype
+			| expr '<' expr '>'			#predtype
 			| 'var' binding '=' expr	# statement_assignment
 			| 'val' binding '=' expr	# statement_assignment_readonly
 			| IDENTIFIER '=' expr		# variable_assignment
@@ -46,17 +49,11 @@ expr		: if						# expr_if
 			;
 
 variable	: IDENTIFIER
-			| IDENTIFIER ':' type
+			| IDENTIFIER ':' expr
 			;
 
 binding		: variable						#binding_single
 			| '{' (binding NL)* binding? '}'#binding_multiple
-			;
-
-type		: IDENTIFIER					#rawtype
-			| type '->' type				#functype
-			| type '<' expr '>'				#predtype
-			| '{' (type NL)* type? '}'		#listtype
 			;
 
 if			: 'if' '(' expr ')' expr ('else' expr)?
@@ -68,7 +65,7 @@ for			: 'for' '(' binding ':' expr ')' expr
 while		: 'while' '(' expr ')' expr
 			;
 
-func		: binding '->' type '=>' expr		# func_literal_typed
+func		: binding '->' expr '=>' expr		# func_literal_typed
 			| binding '=>' expr					# func_literal
 			;
 
@@ -90,7 +87,7 @@ func		: binding '->' type '=>' expr		# func_literal_typed
  IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_']*;
 
 WS
-	:	('#{' .* '}#' | ' ' | '\r' | '\n' | '\t') -> channel(HIDDEN)
+	:	('#{' .*? '}#' | ' ' | '\r' | '\n' | '\t') -> channel(HIDDEN)
 	;
 
 NL : ';'+;

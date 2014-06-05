@@ -36,6 +36,10 @@ namespace ANTLR2.Value {
             return new TypeValue(val);
         }
 
+        public static IValue make(Environment val) {
+            return new Value(Type.Of(ValueType.MODULE), val);
+        }
+
         public static IValue make() {
             return new Value(Type.Of(ValueType.ANY));
         }

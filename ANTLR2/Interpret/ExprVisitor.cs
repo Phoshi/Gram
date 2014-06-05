@@ -108,25 +108,17 @@ namespace ANTLR2 {
             return environment[context.IDENTIFIER().GetText()].Value;
         }
 
-        public override IValue VisitRawtype(gramParser.RawtypeContext context) {
-            return environment[context.IDENTIFIER().GetText()].Value;
-        }
 
         public override IValue VisitFunctype(gramParser.FunctypeContext context) {
-            var paramType = Visit(context.type(0));
-            var returnType = Visit(context.type(1));
+            var paramType = Visit(context.expr(0));
+            var returnType = Visit(context.expr(1));
             return ValueFactory.make(new FunctionType(paramType, returnType));
         }
 
         public override IValue VisitPredtype(gramParser.PredtypeContext context) {
-            var type = Visit(context.type());
-            var predicate = Visit(context.expr());
-            return ValueFactory.make(new Type(type, predicate, context.expr().GetText()));
-        }
-
-        public override IValue VisitListtype(gramParser.ListtypeContext context) {
-            var types = context.type().Select(t => Visit(t)).ToList();
-            return ValueFactory.make(new ListType(types, context.GetText()));
+            var type = Visit(context.expr(0));
+            var predicate = Visit(context.expr(1));
+            return ValueFactory.make(new Type(type, predicate, context.expr(1).GetText()));
         }
 
         public override IValue VisitStatement_assignment(gramParser.Statement_assignmentContext context) {
@@ -199,7 +191,7 @@ namespace ANTLR2 {
             var bindTree = explorer.Visit(context.binding());
             var typeTree = bindTreeToTypeTree(bindTree);
 
-            var resultType = Visit(context.type());
+            var resultType = Visit(context.expr(0));
 
             Func<IValue, IValue> func = x => {
                 var correctness = new TypeChecker(typeTree).Check(x);
@@ -208,7 +200,7 @@ namespace ANTLR2 {
                 }
                 var scope = newScope();
                 scope.setBindings(context.binding(), x);
-                return scope.Visit(context.expr());
+                return scope.Visit(context.expr(1));
             };
             return ValueFactory.make(func, typeTree, resultType);
         }
@@ -287,6 +279,18 @@ namespace ANTLR2 {
             }
 
             return ValueFactory.make(results);
+        }
+
+        public override IValue VisitModule_literal(gramParser.Module_literalContext context) {
+            var moduleScope = newScope();
+            moduleScope.Visit(context.expr());
+            return ValueFactory.make(moduleScope.Environment);
+        }
+
+        public override IValue VisitModule_dereference(gramParser.Module_dereferenceContext context) {
+            var module = Visit(context.expr());
+            var identifier = context.IDENTIFIER().GetText();
+            return module.Get<Environment>()[identifier].Value;
         }
 
         public IList<Binding> setBindings(gramParser.BindingContext context, IValue val){

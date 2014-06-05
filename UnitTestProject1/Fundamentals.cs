@@ -260,5 +260,20 @@ namespace GramTests {
             i.Execute("var box: Rect = Rect{0; 0; 10; 10};");
         }
 
+        [TestMethod]
+        public void MiniModule() {
+            var i = new GramInterpreter();
+            i.Execute("var mod = module {val x = 5};");
+            Assert.AreEqual(5, i.Execute("mod::x").Get<int>());
+        }
+
+        [TestMethod]
+        public void ModuleValueInFunctionType() {
+            var i = new GramInterpreter();
+            i.Execute("var mod = module val T = Int;");
+            i.Execute("var f: mod::T->mod::T = x=>x");
+            Assert.AreEqual(5, i.Execute("f 5").Get<int>());
+        }
+
     }
 }

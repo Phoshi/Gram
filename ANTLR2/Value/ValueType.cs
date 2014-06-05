@@ -11,5 +11,6 @@ namespace ANTLR2 {
         LIST,
         ANY,
         TYPE,
+        MODULE,
     }
 }

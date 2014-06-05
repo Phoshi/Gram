@@ -15,12 +15,12 @@ namespace ANTLR2.Interpret {
 
         public override Tree<Binding> VisitVariable(gramParser.VariableContext context) {
             var name = context.IDENTIFIER().GetText();
-            if (context.type() != null) {
-                var type = interpreter.Visit(context.type());
+            if (context.expr() != null) {
+                var type = interpreter.Visit(context.expr());
                 if (type.Type.Check(ValueType.TYPE)) {
                     return new Tree<Binding>(new Binding(name, type.Get<IType>()));
                 } else if (type.Type.Check(ValueType.LIST)) {
-                    return new Tree<Binding>(new Binding(name, new ListType(type.Get<IEnumerable<IValue>>(), context.type().GetText())));
+                    return new Tree<Binding>(new Binding(name, new ListType(type.Get<IEnumerable<IValue>>(), context.expr().GetText())));
                 }
             }
 
