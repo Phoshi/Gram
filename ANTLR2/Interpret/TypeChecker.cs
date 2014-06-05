@@ -35,6 +35,9 @@ namespace ANTLR2.Interpret {
                 return typeTree.Get<IType>().Check(value);
 
             } else {
+                if (typeTree.Get<IEnumerable<IValue>>().Count() != value.Get<IEnumerable<IValue>>().Count()) {
+                    return false;
+                }
                 return typeTree.Get<IEnumerable<IValue>>().Zip(value.Get<IEnumerable<IValue>>(), (bindChildren, val) => new TypeChecker(bindChildren, compareAsType).Check(val)).Aggregate((one, two) => one && two);
             }
         }

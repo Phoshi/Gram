@@ -261,6 +261,12 @@ namespace GramTests {
         }
 
         [TestMethod]
+        public void IncorrectTypeInstantiation() {
+            var i = new GramInterpreter();
+            //i.Execute
+        }
+
+        [TestMethod]
         public void MiniModule() {
             var i = new GramInterpreter();
             i.Execute("var mod = module {val x = 5};");
