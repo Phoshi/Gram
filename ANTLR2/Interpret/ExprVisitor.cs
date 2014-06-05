@@ -293,6 +293,12 @@ namespace ANTLR2 {
             return module.Get<Environment>()[identifier].Value;
         }
 
+        public override IValue VisitLet(gramParser.LetContext context) {
+            var envScope = newScope();
+            var environment = envScope.Visit(context.expr(0));
+            return envScope.Visit(context.expr(1));
+        }
+
         public IList<Binding> setBindings(gramParser.BindingContext context, IValue val){
             var bindingExplorer = new BindingAssigner(this, val);
             var bindings = bindingExplorer.Visit(context);

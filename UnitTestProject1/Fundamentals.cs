@@ -283,5 +283,10 @@ namespace GramTests {
             Assert.AreEqual(5, i.Execute("f 5").Get<int>());
         }
 
+        [TestMethod]
+        public void Let() {
+            var i = new GramInterpreter();
+            Assert.AreEqual(5, i.Execute("let val x = 5 in x;").Get<int>());
+        }
     }
 }
