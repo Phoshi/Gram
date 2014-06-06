@@ -288,5 +288,15 @@ namespace GramTests {
             var i = new GramInterpreter();
             Assert.AreEqual(5, i.Execute("let val x = 5 in x;").Get<int>());
         }
+
+        [TestMethod]
+        public void PatternMatch() {
+            var i = new GramInterpreter();
+            Assert.AreEqual(5, i.Execute("5 match {x=>x};").Get<int>(), "Basic syntax failure");
+
+            Assert.AreEqual(5, i.Execute("5 match {x: Type=>3; x: Int => 5};").Get<int>(), "Typecheck failure");
+
+            Assert.AreEqual(5, i.Execute("2 match {x: Int<(x=>x<4)> => x+3; x=>0}").Get<int>(), "Constrained typecheck failure");
+        }
     }
 }

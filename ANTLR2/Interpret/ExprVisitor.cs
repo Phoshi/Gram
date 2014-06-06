@@ -21,6 +21,7 @@ namespace ANTLR2 {
                 return ValueFactory.make(x.Get<IEnumerable<IValue>>().Count());
             })),
             new Binding("Int", ValueFactory.make(new Type(ValueType.INTEGER))),
+            new Binding("Type", ValueFactory.make(Type.Of(ValueType.TYPE))),
             new Binding("DEBUG", ValueFactory.make(0)),
         };
 
@@ -297,6 +298,22 @@ namespace ANTLR2 {
             var envScope = newScope();
             var environment = envScope.Visit(context.expr(0));
             return envScope.Visit(context.expr(1));
+        }
+
+        public override IValue VisitPattern_match(gramParser.Pattern_matchContext context) {
+            var pattern = Visit(context.expr(0));
+            var match = Visit(context.expr(1));
+            foreach (var func in match.Get<IEnumerable<IValue>>()) {
+                if (func is FunctionValue) {
+                    var f = func as FunctionValue;
+                    var t = f.Type as FunctionType;
+                    var typeChecker = new TypeChecker(t.Parameter);
+                    if (typeChecker.Check(pattern)) {
+                        return f.Operator("()", pattern);
+                    }
+                }
+            }
+            throw new GramException("Non-exhaustive match in pattern!");
         }
 
         public IList<Binding> setBindings(gramParser.BindingContext context, IValue val){

@@ -9,7 +9,6 @@ namespace ANTLR2.Value {
     class ListType : IType {
 
         private IValue predicate;
-        private IType parentValue;
         private String friendlyName;
 
         private IValue creationList;
@@ -46,7 +45,7 @@ namespace ANTLR2.Value {
         }
 
         public bool Check(IValue val) {
-            return Check(val.Type) || ((parentValue == null ? true : parentValue.Check(val)) && val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true)));
+            return Check(val.Type) || (val.Type.RawTypeOf == RawTypeOf && Predicate.Operator("()", val).Equals(ValueFactory.make(true)));
 
         }
 
