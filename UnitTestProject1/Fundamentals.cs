@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ANTLR2.Interpret;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace GramTests {
     [TestClass]
@@ -297,6 +298,30 @@ namespace GramTests {
             Assert.AreEqual(5, i.Execute("5 match {x: Type=>3; x: Int => 5};").Get<int>(), "Typecheck failure");
 
             Assert.AreEqual(5, i.Execute("2 match {x: Int<(x=>x<4)> => x+3; x=>0}").Get<int>(), "Constrained typecheck failure");
+        }
+
+        [TestMethod]
+        public void StringType() {
+            var i = new GramInterpreter();
+            i.Execute("val str: String = \"Hello, World!\";");
+            var stdout = new StringWriter();
+            Console.SetOut(stdout);
+            i.Execute("print(str);");
+
+            Assert.AreEqual("Hello, World!\r\n", stdout.ToString());
+
+            i.Execute("val hello = \"Hello\";   val world = \"World\";");
+
+            stdout = new StringWriter();
+            Console.SetOut(stdout);
+            i.Execute("print(hello + \", \" + world + \"!\");");
+
+            Assert.AreEqual("Hello, World!\r\n", stdout.ToString());
+
+            stdout = new StringWriter();
+            Console.SetOut(stdout);
+            i.Execute("print(hello[3]);");
+            Assert.AreEqual("l\r\n", stdout.ToString());
         }
     }
 }

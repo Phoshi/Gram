@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace ANTLR2 {
     public enum ValueType {
         INTEGER,
+        STRING,
         FUNCTION,
         LIST,
         ANY,

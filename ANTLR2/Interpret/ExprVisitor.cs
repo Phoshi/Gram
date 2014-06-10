@@ -22,6 +22,7 @@ namespace ANTLR2 {
             })),
             new Binding("Int", ValueFactory.make(new Type(ValueType.INTEGER))),
             new Binding("Type", ValueFactory.make(Type.Of(ValueType.TYPE))),
+            new Binding("String", ValueFactory.make(Type.Of(ValueType.STRING))),
             new Binding("DEBUG", ValueFactory.make(0)),
         };
 
@@ -56,6 +57,11 @@ namespace ANTLR2 {
 
         public override IValue VisitInt(gramParser.IntContext context) {
             return ValueFactory.make(int.Parse(context.INT().GetText()));
+        }
+
+        public override IValue VisitString(gramParser.StringContext context) {
+            var str = context.STR().GetText();
+            return ValueFactory.make(str.Substring(1, str.Length - 2));
         }
 
         public override IValue VisitUnary_operators(gramParser.Unary_operatorsContext context) {
@@ -224,7 +230,7 @@ namespace ANTLR2 {
 
         public override IValue VisitList_index(gramParser.List_indexContext context) {
             var list = Visit(context.expr(0));
-            if (!list.Type.Check(ValueType.LIST)) {
+            if (!list.Type.Check(ValueType.LIST) && !list.Type.Check(ValueType.STRING)) {
                 throw new TypeException("Indexing must be done on list type!");
             }
             var index = Visit(context.expr(1));

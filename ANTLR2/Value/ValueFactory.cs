@@ -11,6 +11,10 @@ namespace ANTLR2.Value {
             return new Value(Type.Of(ValueType.INTEGER), val);
         }
 
+        public static IValue make(string val) {
+            return new Value(Type.Of(ValueType.STRING), val);
+        }
+
         public static IValue make(bool val) {
             return new Value(Type.Of(ValueType.INTEGER), val ? 1 : 0);
         }

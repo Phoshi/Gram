@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ANTLR2.ValueBehaviour;
 
 namespace ANTLR2.ValueBehaviour {
     class ValueBehaviourFactory {
@@ -21,6 +22,10 @@ namespace ANTLR2.ValueBehaviour {
                 return new FuncBehaviour();
             } else if (val.Type.Check(ValueType.TYPE)){
                 return new TypeBehaviour();
+            } else if (val.Type.Check(ValueType.STRING) && val2.Type.Check(ValueType.STRING)){
+                return new StringBehaviour();
+            } else if (val.Type.Check(ValueType.STRING) && val2.Type.Check(ValueType.INTEGER)){
+                return new StringToIntBehaviour();
             } else {
                 return new NullBehaviour();
             }

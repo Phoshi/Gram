@@ -48,6 +48,7 @@ expr		: if						# expr_if
 			| expr 'match' expr			# pattern_match
 			| IDENTIFIER '=' expr		# variable_assignment
 			| INT						# int
+			| STR						# string
 			;
 
 variable	: IDENTIFIER
@@ -87,6 +88,9 @@ func		: binding '->' expr '=>' expr		# func_literal_typed
  OR  : '||';
  AND : '&&';
  IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_']*;
+
+ STR : '"' ANYTHING '"';
+ ANYTHING : .*?;
 
 WS
 	:	('#{' .*? '}#' | ' ' | '\r' | '\n' | '\t') -> channel(HIDDEN)

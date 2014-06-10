@@ -69,6 +69,8 @@
     <Compile Include="ValueBehaviours\NullBehaviour.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValueBehaviours\StringBehaviour.cs" />
+    <Compile Include="ValueBehaviours\StringToIntBehaviour.cs" />
     <Compile Include="ValueBehaviours\TypeBehaviour.cs" />
     <Compile Include="Value\FunctionType.cs" />
     <Compile Include="Value\FunctionValue.cs" />
