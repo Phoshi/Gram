@@ -4,27 +4,14 @@ using ANTLR2.Value;
 using ANTLR2.ValueBehaviour;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ANTLR2 {
     class ExprVisitor : gramBaseVisitor<IValue> {
-        private Environment environment = new Environment() {
-            new Binding("print", ValueFactory.make(x=>{Console.WriteLine(x);return ValueFactory.make();})),
-            new Binding("typeof", ValueFactory.make(x=>{
-                    var t = x.Type;
-                    return ValueFactory.make(t);
-            })),
-            new Binding("Any", ValueFactory.make(Type.Of(ValueType.ANY))),
-            new Binding("length", ValueFactory.make(x=>{
-                return ValueFactory.make(x.Get<IEnumerable<IValue>>().Count());
-            })),
-            new Binding("Int", ValueFactory.make(new Type(ValueType.INTEGER))),
-            new Binding("Type", ValueFactory.make(Type.Of(ValueType.TYPE))),
-            new Binding("String", ValueFactory.make(Type.Of(ValueType.STRING))),
-            new Binding("DEBUG", ValueFactory.make(0)),
-        };
+        private readonly Environment environment;
 
         public Environment Environment { get { return environment; } }
 
@@ -36,7 +23,33 @@ namespace ANTLR2 {
             this.environment = environment;
         }
 
-        public ExprVisitor() {}
+        public ExprVisitor() {
+            this.environment = generateBuiltins();
+        }
+
+        private Environment generateBuiltins() {
+            return new Environment() {
+                new Binding("print", ValueFactory.make(x=>{Console.WriteLine(x);return ValueFactory.make();})),
+                new Binding("typeof", ValueFactory.make(x=>{
+                        var t = x.Type;
+                        return ValueFactory.make(t);
+                })),
+                new Binding("import", ValueFactory.make((IValue x)=>{
+                    var path = x.Get<string>();
+                    var script = File.ReadAllText(path);
+                    var interpreter = new GramInterpreter();
+                    return interpreter.Execute(script);
+                })),
+                new Binding("Any", ValueFactory.make(Type.Of(ValueType.ANY))),
+                new Binding("length", ValueFactory.make(x=>{
+                    return ValueFactory.make(x.Get<IEnumerable<IValue>>().Count());
+                })),
+                new Binding("Int", ValueFactory.make(new Type(ValueType.INTEGER))),
+                new Binding("Type", ValueFactory.make(Type.Of(ValueType.TYPE))),
+                new Binding("String", ValueFactory.make(Type.Of(ValueType.STRING))),
+                new Binding("DEBUG", ValueFactory.make(0)),
+            };
+        }
 
         public override IValue Visit(Antlr4.Runtime.Tree.IParseTree tree) {
             if (environment["DEBUG"].Value.Equals(ValueFactory.make(true))) {

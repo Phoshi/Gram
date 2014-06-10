@@ -1,0 +1,3 @@
+module {
+	val square: Int->Int = n=>n*n;
+}
