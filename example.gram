@@ -1,3 +1,16 @@
 module {
-	val square: Int->Int = n=>n*n;
-}
+	val PositiveInt = Int<(x=>x>-1)>;
+	val NegativeInt = Int<(x=>x< 1)>;
+
+	val Square: Int->Int = n=>n*n;
+
+	val Abs: Int->PositiveInt = n=> n match {
+		n: NegativeInt => -n;
+		n: PositiveInt =>  n;
+	};
+
+	val Exp: {Int; Int}->Int = args=> args match {
+		{n; exponent: Int<e=>e==0>} => 1;
+		{n; exponent: PositiveInt } => n * (Exp{n; exponent-1});
+	}
+};
