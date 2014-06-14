@@ -86,6 +86,10 @@
     <Compile Include="Value\ValueType.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\example.gram">
+      <Link>example.gram</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <Antlr4 Include="gram.g4">
       <Generator>MSBuild:Compile</Generator>

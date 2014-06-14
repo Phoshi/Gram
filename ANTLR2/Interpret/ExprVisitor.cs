@@ -40,6 +40,13 @@ namespace ANTLR2 {
                     var interpreter = new GramInterpreter();
                     return interpreter.Execute(script);
                 })),
+                new Binding("local", ValueFactory.make((IValue x)=>{
+                    var module = x.Get<Environment>();
+                    foreach (var bind in module) {
+                        this.environment.Add(bind);
+                    }
+                    return x;
+                })),
                 new Binding("Any", ValueFactory.make(Type.Of(ValueType.ANY))),
                 new Binding("length", ValueFactory.make(x=>{
                     return ValueFactory.make(x.Get<IEnumerable<IValue>>().Count());
