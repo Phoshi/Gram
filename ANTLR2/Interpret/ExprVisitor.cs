@@ -240,7 +240,7 @@ namespace ANTLR2 {
             } else if (bindTree.Children.Count > 0) {
                 return ValueFactory.make(bindTree.Children.Select(bind => bindTreeToTypeTree(bind)));
             } else {
-                return ValueFactory.make();
+                return ValueFactory.make(new List<IValue>());
             }
         }
 
