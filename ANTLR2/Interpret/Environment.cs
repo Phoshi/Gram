@@ -51,7 +51,7 @@ namespace ANTLR2 {
         }
 
         public override string ToString() {
-            return string.Join(";", bindings.Select(kvpair => kvpair.Key + ":" + kvpair.Value.Value));
+            return string.Join("; ", bindings.Select(kvpair => kvpair.Key + ":" + kvpair.Value.Value));
         }
     }
 }
