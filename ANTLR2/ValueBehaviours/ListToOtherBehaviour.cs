@@ -13,9 +13,6 @@ namespace ANTLR2.ValueBehaviour {
                         list.Add(operand2);
                         return ValueFactory.make(list);
                     }
-                case "==": {
-                    return ValueFactory.make(false);
-                    }
             }
             throw new InvalidOperationException();
         }

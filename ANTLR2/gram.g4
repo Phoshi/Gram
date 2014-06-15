@@ -55,8 +55,9 @@ variable	: IDENTIFIER
 			| IDENTIFIER ':' expr
 			;
 
-binding		: variable						#binding_single
-			| '{' (binding NL)* binding? '}'#binding_multiple
+binding		: variable								#binding_single
+			| '{' (binding NL)* binding? '}'		#binding_multiple
+			| '{' (binding NL)+ binding '...' '}'	#binding_trailing
 			;
 
 if			: 'if' '(' expr ')' expr ('else' expr)?

@@ -38,5 +38,21 @@ namespace ANTLR2.Interpret {
 
             return tree;
         }
+
+        public override Tree<Binding> VisitBinding_trailing(gramParser.Binding_trailingContext context) {
+            var numBindings = context.binding().Count;
+            var bindings = context.binding().Take(numBindings - 1).Zip(value.Get<IEnumerable<IValue>>(), (binding, subValue) => new BindingAssigner(interpreter, subValue).Visit(binding));
+
+            var tree = new Tree<Binding>();
+            foreach (var binding in bindings) {
+                tree.Add(binding);
+            }
+
+            var trailing = new BindingAssigner(interpreter, 
+                ValueFactory.make(value.Get<IEnumerable<IValue>>().Skip(numBindings - 1)));
+            tree.Add(trailing.Visit(context.binding().Last()));
+
+            return tree;
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace ANTLR2 {
         public IValue Value { 
             get { return value; }
             set {
-                if (Type.Check(ValueType.ANY)) {
+                if (Type.Check(ValueType.ANY) && Type.Predicate == ANTLR2.Type.NoOpPredicate) {
                     Type = value.Type;
                 }
                 if (ReadOnly && !value.Type.Check(ValueType.ANY)) {

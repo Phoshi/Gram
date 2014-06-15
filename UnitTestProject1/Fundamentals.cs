@@ -323,5 +323,12 @@ namespace GramTests {
             i.Execute("print(hello[3]);");
             Assert.AreEqual("l\r\n", stdout.ToString());
         }
+
+        [TestMethod]
+        public void ListDestructure() {
+            var i = new GramInterpreter();
+            i.Execute("val f = {head; tail...} => head;");
+            Assert.AreEqual(5, i.Execute("f{5;6;7};").Get<int>());
+        }
     }
 }

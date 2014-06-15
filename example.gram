@@ -13,8 +13,10 @@ module {
 		n: PositiveInt =>  n;
 	};
 
+	val Eq = item => Any<any=>any==item>;
+
 	val Pow: {Int; Int}->Int = args=> args match {
-		{n; exponent: Int<e=>e==0>} => 1;
+		{n; exponent: Eq 0} => 1;
 		{n; exponent: PositiveInt } => n * (Pow{n; exponent-1});
 	};
 
@@ -31,17 +33,9 @@ module {
 				range'({current + 1; end; rangeList + (current+1)})
 		in p:{Int;Int} => range'(p+{p[0]});
 
-	var head = list=>list[0];
+	var head = {head;_...}=>head;
 
-	var tail = l=>{
-		var all = {}; 
-		var first = true; 
-		for (elem:l) 
-			if (first) 
-				first = false 
-			else 
-				all = all + elem;
-		all}[-1];
+	var tail = {_;tail...}=>tail;
 
 	val map = {f; iter} => for(i:iter) f(i);
 
@@ -54,20 +48,15 @@ module {
 				filter'{f; tail iter; current}
 		in args=>filter'(args + {});
 
-	val listConcat = {list1;list2}=>{
-		var total = list1;
-		for(elem:list2) 
-			total = total + elem; 
-		total
-	}[-1];
-
-	val listConcat' = {l1; l2}=>l2 match {
-		{elem} 	=> l1 + elem;
-		els 	=> listConcat'({l1 + (head(l2)); tail(l2)})
-	};
+	val listConcat = let val concat' = {l1; l2}=>l2 match {
+				{} 	=> l1;
+				els => concat'{l1 + (head(l2)); tail(l2)}
+			}
+		in args=>reduce{concat'; args};
 
 	val reduce = {f; iter}=>iter match {
 		{head}		=>head;
+		{one; two}	=>f{one;two};
 		otherwise	=>reduce{f; 
 							listConcat{
 								{f{otherwise[0]; otherwise[1]}}; 

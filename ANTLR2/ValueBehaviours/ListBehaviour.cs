@@ -15,9 +15,12 @@ namespace ANTLR2.ValueBehaviour {
                     }
                 case "==": {
                     var list = new List<IValue>(operand1.Get<IEnumerable<IValue>>());
-                    var otherList = new List<IValue>(operand1.Get<IEnumerable<IValue>>());
+                    var otherList = new List<IValue>(operand2.Get<IEnumerable<IValue>>());
                     if (list.Count() != otherList.Count()) {
                         return ValueFactory.make(false);
+                    }
+                    if (list.Count == 0) {
+                        return ValueFactory.make(true);
                     }
                     var results = list.Zip(otherList, (item, otherItem) => item.Operator("==", otherItem));
                     return ValueFactory.make(results.All(r => r.Get<int>() == 1));

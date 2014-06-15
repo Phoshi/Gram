@@ -42,6 +42,7 @@ namespace ANTLR2 {
         }
 
         public Type(IValue parent, IValue predicate, string predicateDescription) {
+            this.RawTypeOf = parent.Get<IType>().RawTypeOf;
             this.parentValue = parent.Get<IType>();
             this.Predicate = predicate;
             this.predicateDescription = predicateDescription;
