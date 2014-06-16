@@ -31,7 +31,7 @@ module {
 									val Next: {}->Int = {}=>let seed = Math::Abs((seed * a + c) % m) in seed;
 								}
 		in args => args match {
-			{}			=> mkRng 5;
+			{}			=> mkRng 5; #{5 is the randomly chosen integer providing this RNG's entropy}#
 			seed: Int	=> mkRng seed;
 		};
 
@@ -81,6 +81,7 @@ module {
 					};
 
 	var repeat = {f;n}=>n match{
+		n: Eq 0 => {};
 		n: Eq 1 => {f{}};	
 		n       => listConcat{{f{}}; repeat{f;n-1}};
 	};
