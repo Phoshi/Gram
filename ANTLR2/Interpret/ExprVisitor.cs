@@ -320,10 +320,10 @@ namespace ANTLR2 {
             return module.Get<Environment>()[identifier].Value;
         }
 
-        public override IValue VisitLet(gramParser.LetContext context) {
+        public override IValue VisitWhere(gramParser.WhereContext context) {
             var envScope = newScope();
-            var environment = envScope.Visit(context.expr(0));
-            return envScope.Visit(context.expr(1));
+            var environment = envScope.Visit(context.expr(1));
+            return envScope.Visit(context.expr(0));
         }
 
         public override IValue VisitPattern_match(gramParser.Pattern_matchContext context) {

@@ -286,9 +286,9 @@ namespace GramTests {
         }
 
         [TestMethod]
-        public void Let() {
+        public void Where() {
             var i = new GramInterpreter();
-            Assert.AreEqual(5, i.Execute("let val x = 5 in x;").Get<int>());
+            Assert.AreEqual(5, i.Execute("x where val x = 5;").Get<int>());
         }
 
         [TestMethod]

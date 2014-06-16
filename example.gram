@@ -15,25 +15,25 @@ module {
 			{n; exponent: PositiveInt } => n * (Pow{n; exponent-1});
 		};
 
-		val Max = let val Max': {Int; Int}->Int = {a;b} => if (a<b) b else a in list=>reduce{Max';list};
+		val Max = list=>reduce{Max';list} where val Max': {Int; Int}->Int = {a;b} => if (a<b) b else a;
 
-		val Min = let val Min': {Int; Int}->Int = {a;b} => if (a<b) a else b in list=>reduce{Min';list};
+		val Min = list=>reduce{Min';list} where val Min': {Int; Int}->Int = {a;b} => if (a<b) a else b;
 
 		val Pi: Int = 3;
 	};
 
-	val Rng = let val mkRng = s => module {
+	val Rng = args => args match {
+			{}			=> mkRng 5; #{5 is the randomly chosen integer providing this RNG's entropy}#
+			seed: Int	=> mkRng seed;
+		}
+		where val mkRng = s => module {
 									var seed = s;
 									val a = 1103515245;
 									val c = 12345;
 									val m = Math::Pow{2;30};
 
 									val Next: {}->Int = {}=>let seed = Math::Abs((seed * a + c) % m) in seed;
-								}
-		in args => args match {
-			{}			=> mkRng 5; #{5 is the randomly chosen integer providing this RNG's entropy}#
-			seed: Int	=> mkRng seed;
-		};
+								};
 
 	val Bool = Int<bool=> bool == 0 || bool == 1>;
 	val true: Bool = 1;
@@ -41,12 +41,12 @@ module {
 
 	val Eq = item => typeof(item)<any=>any==item>;
 
-	val range = let val range' = {current:Int; end:Int; rangeList} => 
+	val range = p:{Int;Int} => range'(p+{p[0]})
+		where val range' = {current:Int; end:Int; rangeList} => 
 			if (current == end) 
 				rangeList 
 			else 
-				range'({current + 1; end; rangeList + (current+1)})
-		in p:{Int;Int} => range'(p+{p[0]});
+				range'({current + 1; end; rangeList + (current+1)});
 
 	var head = {head;_...}=>head;
 
@@ -54,20 +54,20 @@ module {
 
 	val map = {f; iter} => for(i:iter) f(i);
 
-	val filter: {Any->Any; Any} -> Any = let val filter' = {f; iter; current} => 
+	val filter: {Any->Any; Any} -> Any = args=>filter'(args + {})
+		where val filter' = {f; iter; current} => 
 			if (length(iter) == 0) 
 				current 
 			else if (f(head(iter))) 
 				filter'{f; tail iter; current + (head(iter))} 
 			else 
-				filter'{f; tail iter; current}
-		in args=>filter'(args + {});
+				filter'{f; tail iter; current};
 
-	val listConcat = let val concat' = {l1; l2}=>l2 match {
+	val listConcat = args=>reduce{concat'; args} 
+		where val concat' = {l1; l2}=>l2 match {
 				{} 	=> l1;
 				els => concat'{l1 + (head(l2)); tail(l2)}
-			}
-		in args=>reduce{concat'; args};
+			};
 
 	val reduce = {f; iter}=>iter match {
 		{head}		=>head;

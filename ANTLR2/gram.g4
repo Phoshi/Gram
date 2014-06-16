@@ -44,7 +44,7 @@ expr		: if						# expr_if
 			| expr '<' expr '>'			# predtype
 			| 'var' binding '=' expr	# statement_assignment
 			| 'val' binding '=' expr	# statement_assignment_readonly
-			| 'let' expr 'in' expr		# let
+			| expr 'where' expr			# where
 			| expr 'match' expr			# pattern_match
 			| IDENTIFIER '=' expr		# variable_assignment
 			| INT						# int
