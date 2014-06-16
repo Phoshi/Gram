@@ -18,7 +18,7 @@ namespace ANTLR2.Value {
         public TypeValue(IType type, string name) {
             this.type = type;
             this.name = name;
-            type.FriendlyName = name;
+            //type.FriendlyName = name;
         }
 
         public IValue Operator(string op) {

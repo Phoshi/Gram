@@ -13,6 +13,7 @@ namespace ANTLR2.ValueBehaviour {
                 case "-":   return ValueFactory.make(operand1.Get<int>() - operand2.Get<int>());
                 case "/":   return ValueFactory.make(operand1.Get<int>() / operand2.Get<int>());
                 case "*":   return ValueFactory.make(operand1.Get<int>() * operand2.Get<int>());
+                case "%":   return ValueFactory.make(operand1.Get<int>() % operand2.Get<int>());
                 case "==":  return ValueFactory.make(operand1.Get<int>() == operand2.Get<int>());
                 case ">":   return ValueFactory.make(operand1.Get<int>() > operand2.Get<int>());
                 case "<":   return ValueFactory.make(operand1.Get<int>() < operand2.Get<int>());

@@ -27,7 +27,7 @@ expr		: if						# expr_if
 			| for						# expr_for
 			| while						# expr_while
 			| '{' (expr NL)* expr? '}'	# blockexpr
-			| expr op=(MUL|DIV) expr	# MulDiv
+			| expr op=(MUL|DIV|MOD) expr# MulDiv
 			| expr op=(ADD|SUB) expr	# AddSub
 			| expr op=(EQ|LT|GT) expr	# equality
 			| expr op=(OR|AND) expr		# logicaloperator
@@ -82,6 +82,7 @@ func		: binding '->' expr '=>' expr		# func_literal_typed
  DIV : '/';
  ADD : '+';
  SUB : '-';
+ MOD : '%';
  EQ  : '==';
  GT  : '>';
  LT  : '<';

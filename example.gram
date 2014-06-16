@@ -1,30 +1,45 @@
 module {
-	val PositiveInt = Int<(x=>x>-1)>;
-	val NegativeInt = Int<(x=>x< 1)>;
+	val Math = module {
+		val PositiveInt = Int<(x=>x>-1)>;
+		val NegativeInt = Int<(x=>x< 1)>;
+
+		val Square: Int->Int = n=>n*n;
+
+		val Abs: Int->PositiveInt = n=> n match {
+			n: NegativeInt => -n;
+			n: PositiveInt =>  n;
+		};
+
+		val Pow: {Int; Int}->Int = args=> args match {
+			{n; exponent: Eq 0} => 1;
+			{n; exponent: PositiveInt } => n * (Pow{n; exponent-1});
+		};
+
+		val Max = let val Max': {Int; Int}->Int = {a;b} => if (a<b) b else a in list=>reduce{Max';list};
+
+		val Min = let val Min': {Int; Int}->Int = {a;b} => if (a<b) a else b in list=>reduce{Min';list};
+
+		val Pi: Int = 3;
+	};
+
+	val Rng = let val mkRng = s => module {
+									var seed = s;
+									val a = 1103515245;
+									val c = 12345;
+									val m = Math::Pow{2;30};
+
+									val Next: {}->Int = {}=>let seed = Math::Abs((seed * a + c) % m) in seed;
+								}
+		in args => args match {
+			{}			=> mkRng 5;
+			seed: Int	=> mkRng seed;
+		};
 
 	val Bool = Int<bool=> bool == 0 || bool == 1>;
 	val true: Bool = 1;
 	val false: Bool = 0;
 
-	val Square: Int->Int = n=>n*n;
-
-	val Abs: Int->PositiveInt = n=> n match {
-		n: NegativeInt => -n;
-		n: PositiveInt =>  n;
-	};
-
-	val Eq = item => Any<any=>any==item>;
-
-	val Pow: {Int; Int}->Int = args=> args match {
-		{n; exponent: Eq 0} => 1;
-		{n; exponent: PositiveInt } => n * (Pow{n; exponent-1});
-	};
-
-	val Max = let val Max': {Int; Int}->Int = {a;b} => if (a<b) b else a in list=>reduce{Max';list};
-
-	val Min = let val Min': {Int; Int}->Int = {a;b} => if (a<b) a else b in list=>reduce{Min';list};
-
-	val Pi: Int = 3;
+	val Eq = item => typeof(item)<any=>any==item>;
 
 	val range = let val range' = {current:Int; end:Int; rangeList} => 
 			if (current == end) 
@@ -64,4 +79,9 @@ module {
 							}
 						};
 					};
+
+	var repeat = {f;n}=>n match{
+		n: Eq 1 => {f{}};	
+		n       => listConcat{{f{}}; repeat{f;n-1}};
+	};
 };

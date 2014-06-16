@@ -32,6 +32,9 @@ namespace ANTLR2.Interpret {
                     }
                     return type.Get<IType>().Check(value.Get<IType>());
                 }
+                if (typeTree.Type.Check(ValueType.LIST)) {
+                    return new ListType(typeTree, typeTree.ToString()).Check(value);
+                }
                 return typeTree.Get<IType>().Check(value);
 
             } else {

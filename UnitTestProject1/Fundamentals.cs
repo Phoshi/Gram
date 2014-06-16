@@ -60,6 +60,7 @@ namespace GramTests {
             Assert.AreEqual(5, i.Execute("6-1;").Get<int>(), "Subtraction is broken");
             Assert.AreEqual(5, i.Execute("10/2;").Get<int>(), "Division is broken");
             Assert.AreEqual(9, i.Execute("3*3;").Get<int>(), "Multiplication is broken");
+            Assert.AreEqual(4, i.Execute("14%5;").Get<int>(), "Modulo is broken");
         }
 
         [TestMethod]
