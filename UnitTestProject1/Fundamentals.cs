@@ -331,5 +331,12 @@ namespace GramTests {
             i.Execute("val f = {head; tail...} => head;");
             Assert.AreEqual(5, i.Execute("f{5;6;7};").Get<int>());
         }
+
+        [TestMethod]
+        public void UnderscoreBinding() {
+            var i = new GramInterpreter();
+            i.Execute("val {x;_;_;_;y;_} = {2;3;4;5;3;6};");
+            Assert.AreEqual(5, i.Execute("x + y;").Get<int>());
+        }
     }
 }

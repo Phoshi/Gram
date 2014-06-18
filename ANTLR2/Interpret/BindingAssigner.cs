@@ -17,6 +17,9 @@ namespace ANTLR2.Interpret {
 
         public override Tree<Binding> VisitVariable(gramParser.VariableContext context) {
             var name = context.IDENTIFIER().GetText();
+            if (name == "_") {
+                return new Tree<Binding>();
+            }
             if (context.expr() != null) {
                 var type = interpreter.Visit(context.expr());
                 if (type.Type.Check(ValueType.TYPE)) {
