@@ -35,7 +35,10 @@ expr		: if						# expr_if
 			| INEQ expr					# inequality
 			| func						# expr_func
 			| variable					# expr_variable
+			| expr 'match' expr			# pattern_match
+			| expr where_expr			# where
 			| expr '('? expr ')'? 		# statement_func_call
+			| expr '()'					# statement_empty_func_call
 			| expr '[' expr ']'			# list_index
 			| '(' expr ')'				# parens
 			| expr '::' IDENTIFIER		# module_dereference
@@ -44,11 +47,13 @@ expr		: if						# expr_if
 			| expr '<' expr '>'			# predtype
 			| 'var' binding '=' expr	# statement_assignment
 			| 'val' binding '=' expr	# statement_assignment_readonly
-			| expr 'where' expr			# where
-			| expr 'match' expr			# pattern_match
 			| IDENTIFIER '=' expr		# variable_assignment
 			| INT						# int
 			| STR						# string
+			;
+
+where_expr	: 'where' '{' (expr NL)* expr? '}'
+			| 'where' expr
 			;
 
 variable	: IDENTIFIER

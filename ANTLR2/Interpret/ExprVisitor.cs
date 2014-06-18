@@ -194,7 +194,12 @@ namespace ANTLR2 {
 
         public override IValue VisitStatement_func_call(gramParser.Statement_func_callContext context) {
             var func = Visit(context.expr(0));
-            return func.Operator("()", Visit(context.expr(1)));
+            var arg = Visit(context.expr(1));
+            return func.Operator("()", arg);
+        }
+
+        public override IValue VisitStatement_empty_func_call(gramParser.Statement_empty_func_callContext context) {
+            return Visit(context.expr()).Operator("()", ValueFactory.make(new List<IValue>()));
         }
 
         public override IValue VisitFunc_literal(gramParser.Func_literalContext context) {
@@ -322,8 +327,16 @@ namespace ANTLR2 {
 
         public override IValue VisitWhere(gramParser.WhereContext context) {
             var envScope = newScope();
-            var environment = envScope.Visit(context.expr(1));
-            return envScope.Visit(context.expr(0));
+            envScope.Visit(context.where_expr());
+            return envScope.Visit(context.expr());
+        }
+
+        public override IValue VisitWhere_expr(gramParser.Where_exprContext context) {
+            IValue result = ValueFactory.make();
+            foreach (var expr in context.expr()) {
+                result = Visit(expr);
+            }
+            return result;
         }
 
         public override IValue VisitPattern_match(gramParser.Pattern_matchContext context) {

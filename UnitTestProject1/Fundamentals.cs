@@ -338,5 +338,11 @@ namespace GramTests {
             i.Execute("val {x;_;_;_;y;_} = {2;3;4;5;3;6};");
             Assert.AreEqual(5, i.Execute("x + y;").Get<int>());
         }
+
+        [TestMethod]
+        public void MultiWhere() {
+            var i = new GramInterpreter();
+            Assert.AreEqual(5, i.Execute("a+b+c where {val a = 2; val b = 2; val c = 1};").Get<int>());
+        }
     }
 }

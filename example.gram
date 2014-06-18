@@ -1,7 +1,14 @@
 module {
+	val Types = module {
+		val Eq = item => typeof(item)<(any=>any==item )>;
+		val Neq= item => typeof(item)<(any=>!any==item)>;
+		val GT = item => typeof(item)<(any=>any>item  )>;
+		val LT = item => typeof(item)<(any=>any<item  )>;
+	};
+
 	val Math = module {
-		val PositiveInt = Int<(x=>x>-1)>;
-		val NegativeInt = Int<(x=>x< 1)>;
+		val PositiveInt = Types::GT(-1);
+		val NegativeInt = Types::LT( 1);
 
 		val Square: Int->Int = n=>n*n;
 
@@ -11,13 +18,15 @@ module {
 		};
 
 		val Pow: {Int; Int}->Int = args=> args match {
-			{n; exponent: Eq 0} => 1;
+			{n; exponent: Types::Eq 0 } => 1;
 			{n; exponent: PositiveInt } => n * (Pow{n; exponent-1});
 		};
 
-		val Max = list=>reduce{Max';list} where val Max': {Int; Int}->Int = {a;b} => if (a<b) b else a;
+		val Max = list=>reduce{Max';list} 
+			where val Max': {Int; Int}->Int = {a;b} => if (a<b) b else a;
 
-		val Min = list=>reduce{Min';list} where val Min': {Int; Int}->Int = {a;b} => if (a<b) a else b;
+		val Min = list=>reduce{Min';list} 
+			where val Min': {Int; Int}->Int = {a;b} => if (a<b) a else b;
 
 		val Pi: Int = 3;
 	};
@@ -28,18 +37,20 @@ module {
 		}
 		where val mkRng = s => module {
 									var seed = s;
-									val a = 1103515245;
-									val c = 12345;
-									val m = Math::Pow{2;30};
 
-									val Next: {}->Int = {}=>let seed = Math::Abs((seed * a + c) % m) in seed;
+									val Next: {}->Int = {}=>seed 
+										where {
+											seed = (Math::Abs((seed * a + c) % m))
+												where {
+													val a = 1103515245;
+													val c = 12345;
+													val m = Math::Pow{2;30};
+												}};
 								};
 
 	val Bool = Int<bool=> bool == 0 || bool == 1>;
 	val true: Bool = 1;
 	val false: Bool = 0;
-
-	val Eq = item => typeof(item)<any=>any==item>;
 
 	val range = p:{Int;Int} => range'(p+{p[0]})
 		where val range' = {current:Int; end:Int; rangeList} => 
@@ -65,24 +76,24 @@ module {
 
 	val listConcat = args=>reduce{concat'; args} 
 		where val concat' = {l1; l2}=>l2 match {
-				{} 	=> l1;
-				els => concat'{l1 + (head(l2)); tail(l2)}
+				{} 				=> l1;
+				{head; tail...} => concat'{l1 + head; tail}
 			};
 
 	val reduce = {f; iter}=>iter match {
-		{head}		=>head;
-		{one; two}	=>f{one;two};
-		otherwise	=>reduce{f; 
-							listConcat{
-								{f{otherwise[0]; otherwise[1]}}; 
-								tail(tail(otherwise))
-							}
-						};
-					};
+		{head}				=> head;
+		{one; two}			=> f{one;two};
+		{one; two; rest...}	=> reduce{f; 
+									listConcat{
+										{f{one; two}}; 
+										rest
+									}
+								}
+	};
 
 	var repeat = {f;n}=>n match{
-		n: Eq 0 => {};
-		n: Eq 1 => {f{}};	
-		n       => listConcat{{f{}}; repeat{f;n-1}};
+		n: Types::Eq 0	=> {};
+		n: Types::Eq 1	=> {f{}};	
+		n				=> listConcat{{f{}}; repeat{f;n-1}};
 	};
 };

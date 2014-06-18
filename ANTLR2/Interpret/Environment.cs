@@ -45,6 +45,11 @@ namespace ANTLR2 {
         public void Add(Binding binding) {
             this[binding.Name] = binding;
         }
+        public void Add(Environment environment) {
+            foreach (var binding in environment) {
+                this.Add(binding);
+            }
+        }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
             return bindings.Values.GetEnumerator();
