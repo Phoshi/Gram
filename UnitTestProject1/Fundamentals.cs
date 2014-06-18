@@ -344,5 +344,19 @@ namespace GramTests {
             var i = new GramInterpreter();
             Assert.AreEqual(5, i.Execute("a+b+c where {val a = 2; val b = 2; val c = 1};").Get<int>());
         }
+
+        [TestMethod]
+        public void LocalImport() {
+            var i = new GramInterpreter();
+            i.Execute("local module val x = 5;");
+            Assert.AreEqual(4, i.Execute("y where local module val y = 4;").Get<int>());
+            Assert.AreEqual(5, i.GetVariable("x").Get<int>());
+            try {
+                Assert.AreNotEqual(4, i.GetVariable("y").Get<int>());
+                Assert.Fail();
+            } catch (ANTLR2.GramException) {
+
+            }
+        }
     }
 }

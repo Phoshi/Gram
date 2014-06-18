@@ -43,6 +43,7 @@ expr		: if						# expr_if
 			| '(' expr ')'				# parens
 			| expr '::' IDENTIFIER		# module_dereference
 			| 'module' expr				# module_literal
+			| 'local' expr				# local
 			| expr '->' expr			# functype
 			| expr '<' expr '>'			# predtype
 			| 'var' binding '=' expr	# statement_assignment
